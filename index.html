@@ -1,0 +1,1782 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>網路課教學箱</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap">
+<style id="nk-css">
+/* Layout: sticky top bar (version switch) + left unit rail + main stage; rail becomes a scrolling chip row on phones */
+:root{
+  --bg:#eef3f6; --surface:#ffffff; --sunk:#e3eaf0; --ink:#13283b; --muted:#5b6d7e; --line:#cfdae3;
+  --primary:#1f5fa3; --primary-ink:#ffffff; --primary-soft:#dce9f7;
+  --signal:#e07a00; --signal-soft:#fdebd3;
+  --ok:#23813a; --ok-soft:#dcf2e1; --bad:#c42b2b; --bad-soft:#f9dede;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:10px; --scale:1;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1824; --surface:#142434; --sunk:#0f1d2b; --ink:#e3ecf4; --muted:#97abbe; --line:#25394d;
+  --primary:#6aa9ee; --primary-ink:#06172a; --primary-soft:#1b3550;
+  --signal:#ffaa3b; --signal-soft:#3a2a12;
+  --ok:#5ccf74; --ok-soft:#173523; --bad:#ff7676; --bad-soft:#3d1d1f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1824; --surface:#142434; --sunk:#0f1d2b; --ink:#e3ecf4; --muted:#97abbe; --line:#25394d;
+  --primary:#6aa9ee; --primary-ink:#06172a; --primary-soft:#1b3550;
+  --signal:#ffaa3b; --signal-soft:#3a2a12;
+  --ok:#5ccf74; --ok-soft:#173523; --bad:#ff7676; --bad-soft:#3d1d1f; color-scheme:dark}
+:root.proj{--scale:1.22}
+html{font-size:calc(15px * var(--scale))}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.65;font-size:1rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+h1,h2,h3,h4{text-wrap:balance;line-height:1.3;margin:0}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.15rem;letter-spacing:.02em;text-decoration:none;color:var(--ink)}
+.brand svg{flex:none}
+.seg{display:flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:700;font-size:.9rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--primary);color:var(--primary-ink)}
+.top .sp{flex:1}
+.tbtn{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:8px;font-size:.85rem;font-weight:500}
+.tbtn[aria-pressed="true"]{background:var(--signal-soft);border-color:var(--signal)}
+.wire{height:3px;background:repeating-linear-gradient(90deg,var(--primary) 0 18px,transparent 18px 26px,var(--signal) 26px 34px,transparent 34px 42px);opacity:.55}
+
+/* shell */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;max-width:1280px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);align-self:start;display:flex;flex-direction:column;gap:4px}
+.rail .grp{font-size:.75rem;letter-spacing:.12em;color:var(--muted);font-weight:700;margin:12px 8px 4px}
+.rail a{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.93rem;line-height:1.35}
+.rail a:hover{background:var(--sunk)}
+.rail a[aria-current="page"]{background:var(--primary-soft);color:var(--ink);font-weight:700}
+.rail a .code{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);min-width:2.6em;flex:none}
+.rail a[aria-current="page"] .code{color:var(--primary)}
+main{min-width:0}
+
+/* headings */
+.eyebrow{font-size:.78rem;letter-spacing:.14em;color:var(--signal);font-weight:700}
+.h1{font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:900;letter-spacing:.01em}
+.lead{color:var(--muted);max-width:68ch;margin-top:8px}
+.pagehd{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;padding:2px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);font-weight:500}
+.chip.p{background:var(--primary-soft);color:var(--primary)}
+.chip.s{background:var(--signal-soft);color:var(--signal)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 16px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--signal)}
+
+/* cards & blocks */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.h3{font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.h3 .tag{font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--signal)}
+ul.pts{margin:8px 0 0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+ul.pts li::marker{color:var(--signal)}
+.flow{display:flex;flex-direction:column;margin-top:8px}
+.flow .row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
+.flow .row:first-child{border-top:0}
+.flow .min{font-family:var(--f-mono);font-weight:700;color:var(--primary);font-size:.9rem}
+.flow .row b{display:block}
+.flow .row span{color:var(--muted);font-size:.92rem}
+.myth{display:grid;gap:4px;padding:10px 0;border-top:1px dashed var(--line)}
+.myth:first-of-type{border-top:0}
+.myth .q{font-weight:700;color:var(--bad)}
+.myth .a{color:var(--ink)}
+.note{background:var(--signal-soft);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.unitcard{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;transition:border-color .15s,transform .15s}
+.unitcard:hover{border-color:var(--primary);transform:translateY(-2px)}
+.unitcard .code{font-family:var(--f-mono);font-size:.8rem;color:var(--primary);font-weight:700}
+.unitcard h3{font-size:1.05rem}
+.unitcard .meta{font-size:.82rem;color:var(--muted)}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+.steps li{list-style:none;counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--signal);color:#fff;font-weight:900;margin-bottom:6px;font-family:var(--f-mono)}
+.steps li b{display:block}
+.steps li span{font-size:.9rem;color:var(--muted)}
+
+/* activity picker */
+.actpick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.actpick button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700;font-size:.9rem;display:flex;gap:6px;align-items:center}
+.actpick button .k{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.actpick button[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-soft)}
+.acthd{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.acthd h3{font-size:1.2rem;font-weight:900}
+.acthd p{color:var(--muted);max-width:75ch}
+.ask{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:.92rem;background:var(--primary-soft);border-radius:8px;padding:10px 14px}
+.ask b{color:var(--primary);flex:none}
+
+/* buttons */
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;background:var(--primary);color:var(--primary-ink);display:inline-flex;gap:6px;align-items:center}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.sig{background:var(--signal);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label.fld{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:500}
+input[type=text],input[type=number],select{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=range]{accent-color:var(--signal)}
+.ctrls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+
+/* quiz */
+.qcard{display:flex;flex-direction:column;gap:14px}
+.qprog{display:flex;gap:5px;flex-wrap:wrap}
+.qprog i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.qprog i.cur{background:var(--primary)}
+.qprog i.ok{background:var(--ok)}
+.qprog i.no{background:var(--bad)}
+.qtext{font-size:1.2rem;font-weight:700;line-height:1.5}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--surface);padding:11px 14px;border-radius:9px;font-size:1rem}
+.opt .lt{font-family:var(--f-mono);font-weight:700;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:var(--sunk);flex:none;font-size:.85rem}
+.opt:hover:not(:disabled){border-color:var(--primary)}
+.opt.sel{border-color:var(--primary);background:var(--primary-soft)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.expl{border-left:4px solid var(--ok);background:var(--sunk);padding:10px 14px;border-radius:0 8px 8px 0}
+.expl.no{border-left-color:var(--bad)}
+.expl b{display:block}
+.score{display:flex;align-items:baseline;gap:10px}
+.score .n{font-size:3.2rem;font-weight:900;font-family:var(--f-mono);line-height:1}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 54px;gap:10px;align-items:center;font-size:.9rem}
+.bar .tr{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.bar .fl{height:100%;background:var(--primary);border-radius:6px}
+.bar .fl.lo{background:var(--bad)}
+.bar .v{font-family:var(--f-mono);text-align:right}
+.exq{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.exq .qn{font-family:var(--f-mono);color:var(--muted);font-size:.85rem}
+.exq .qtext{font-size:1.05rem}
+.exq .opt{padding:8px 12px;font-size:.95rem}
+
+/* matching */
+.match{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px}
+.match .col{display:flex;flex-direction:column;gap:8px}
+.match .colhd{font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.mi{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:10px 12px;text-align:left;font-size:.95rem;min-height:48px}
+.mi.l{font-weight:700}
+.mi.sel{border-color:var(--primary);background:var(--primary-soft)}
+.mi.done{border-color:var(--ok);background:var(--ok-soft);cursor:default}
+.mi.shake{animation:shake .35s;border-color:var(--bad);background:var(--bad-soft)}
+.mi .pn{font-family:var(--f-mono);font-size:.75rem;color:var(--ok);margin-right:6px}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.status{font-size:.92rem;color:var(--muted);margin-top:12px}
+.status.ok{color:var(--ok);font-weight:700}
+
+/* sequence */
+.seqpool,.seqans{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:10px;border-radius:9px}
+.seqpool{background:var(--sunk)}
+.seqans{border:2px dashed var(--line);flex-direction:column}
+.seqit{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 12px;text-align:left}
+.seqit .y{font-family:var(--f-mono);font-weight:700;color:var(--primary);margin-right:8px}
+.seqit.ok{border-color:var(--ok);background:var(--ok-soft)}
+.seqit.no{border-color:var(--bad);background:var(--bad-soft)}
+
+/* home network */
+.hn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:center}
+.hn .node{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.hn .slot{width:100%;min-height:118px;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;background:var(--surface)}
+.hn .slot.sel{border-color:var(--primary);background:var(--primary-soft)}
+.hn .slot.ok{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.hn .slot.no{border-style:solid;border-color:var(--bad);background:var(--bad-soft)}
+.hn .slot .ph{font-size:.82rem;color:var(--muted)}
+.hn .cap{font-size:.78rem;color:var(--muted);line-height:1.35}
+.hnwrap{display:flex;flex-direction:column;gap:6px}
+.hnline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));font-size:.72rem;color:var(--muted);text-align:center}
+.conn{height:4px;background:var(--line);border-radius:2px;position:relative}
+.hn .link{display:flex;align-items:center}
+.pal{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.dev{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 12px 6px 6px;font-weight:700;font-size:.92rem}
+.dev.sel{border-color:var(--signal);background:var(--signal-soft)}
+.dev.used{opacity:.4}
+.flowing{background:repeating-linear-gradient(90deg,var(--signal) 0 10px,transparent 10px 18px)!important;background-size:36px 4px!important;animation:flow .6s linear infinite}
+@keyframes flow{to{background-position:36px 0}}
+@media (max-width:720px){
+  .hn{grid-template-columns:minmax(0,1fr)}
+  .hnline{display:none}
+}
+
+/* home network 9-col */
+.hn2{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr)}
+.hnrow2 .node{gap:0}
+.vlink{width:4px;height:22px;background:var(--line);border-radius:2px}
+.conn.wl{background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 11px)}
+.hn .link .conn{width:100%}
+@media (max-width:720px){
+  .hn2{grid-template-columns:minmax(0,1fr)}
+  .hn .link{height:20px;justify-content:center}
+  .hn .link .conn{width:4px;height:100%}
+  .hnrow2 > div:empty{display:none}
+}
+/* sims generic */
+.simbox{background:var(--sunk);border-radius:var(--r);padding:12px;overflow-x:auto}
+.simbox svg{display:block;width:100%;height:auto;min-width:560px}
+.svgtext{fill:var(--ink);font-family:var(--f-body)}
+.svgmuted{fill:var(--muted);font-family:var(--f-body)}
+.lg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pk{font-family:var(--f-mono);font-size:.82rem;border-radius:6px;padding:3px 8px;background:var(--surface);border:1.5px solid var(--line)}
+.pk.ok{border-color:var(--ok);background:var(--ok-soft)}
+.pk.bad{border-color:var(--bad);background:var(--bad-soft)}
+.pk.wait{border-style:dashed;color:var(--muted)}
+.pk.re{border-color:var(--signal);background:var(--signal-soft)}
+.log{font-size:.85rem;font-family:var(--f-mono);display:flex;flex-direction:column;gap:2px;max-height:150px;overflow:auto;margin-top:10px;color:var(--muted)}
+.log div:first-child{color:var(--ink)}
+.side2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:12px}
+@media (max-width:640px){.side2{grid-template-columns:minmax(0,1fr)}.match{grid-template-columns:minmax(0,1fr)}}
+.boxt{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.hdr{display:flex;flex-wrap:wrap;font-family:var(--f-mono);font-size:.8rem;border-radius:8px;overflow:hidden;border:1.5px solid var(--line);width:max-content;max-width:100%}
+.hdr span{padding:5px 10px;border-right:1px solid var(--line)}
+.hdr span:last-child{border-right:0}
+.big{font-size:1.4rem;font-weight:900}
+.octs{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;margin-top:10px}
+.oct{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px}
+.oct .d{font-family:var(--f-mono);font-size:1.3rem;font-weight:700}
+.oct .b{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);letter-spacing:.05em}
+.oct.bad{border-color:var(--bad);background:var(--bad-soft)}
+.verdict{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-weight:900;margin-top:12px}
+.verdict.pub{background:var(--primary-soft);color:var(--primary)}
+.verdict.pri{background:var(--signal-soft);color:var(--signal)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.v6{font-family:var(--f-mono);font-size:1.15rem;font-weight:700;word-break:break-all;background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:10px 14px}
+.v6in{font-family:var(--f-mono);font-size:1.05rem;width:100%}
+.parts{display:flex;flex-wrap:wrap;gap:4px;align-items:stretch;margin-top:12px}
+.part{display:flex;flex-direction:column;align-items:center;border-radius:8px;padding:6px 10px;min-width:44px}
+.part .t{font-family:var(--f-mono);font-size:1.15rem;font-weight:700}
+.part .l{font-size:.75rem;font-weight:700}
+.part .x{font-size:.72rem;opacity:.85}
+.part.dot{padding:6px 0;min-width:0;justify-content:center}
+.c1{background:#dbe8fb;color:#163f78}.c2{background:#fde3c6;color:#7a3d00}.c3{background:#d9f1df;color:#1c5a2c}.c4{background:#efdcf7;color:#5b2477}.c5{background:#e4e7eb;color:#33404d}.c6{background:#fbdada;color:#7b1d1d}
+:root[data-theme="dark"] .c1{background:#1d3a5e;color:#cfe2ff}:root[data-theme="dark"] .c2{background:#4a2e10;color:#ffd9ad}:root[data-theme="dark"] .c3{background:#1c4026;color:#c6f0d1}:root[data-theme="dark"] .c4{background:#3e2350;color:#ecd2fb}:root[data-theme="dark"] .c5{background:#2b3540;color:#d4dbe2}:root[data-theme="dark"] .c6{background:#4a1f22;color:#ffd0d0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .c1{background:#1d3a5e;color:#cfe2ff}:root:not([data-theme="light"]) .c2{background:#4a2e10;color:#ffd9ad}:root:not([data-theme="light"]) .c3{background:#1c4026;color:#c6f0d1}:root:not([data-theme="light"]) .c4{background:#3e2350;color:#ecd2fb}:root:not([data-theme="light"]) .c5{background:#2b3540;color:#d4dbe2}:root:not([data-theme="light"]) .c6{background:#4a1f22;color:#ffd0d0}}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;font-size:.92rem;margin-top:12px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:500}
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+.tbl th{font-size:.8rem;color:var(--muted);letter-spacing:.06em}
+.tblw{overflow-x:auto}
+.inbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px;margin-top:12px}
+.mail{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.88rem;display:flex;flex-direction:column;gap:3px}
+.mail .who{font-weight:900;font-size:.95rem}
+.mail .hl{color:var(--muted)}
+.mail .bcc{color:var(--signal);font-weight:700}
+.crow{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
+.crow .seg button{padding:4px 10px;font-size:.8rem}
+.pmbig{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+.pmdial{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-weight:900;font-size:1.8rem;color:#111;border:4px solid var(--surface);box-shadow:0 0 0 2px var(--line)}
+.pmscale{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;margin-top:12px}
+.pmscale div{height:26px;border-radius:4px;font-family:var(--f-mono);font-size:.72rem;display:grid;place-items:center;color:#111;opacity:.45}
+.pmscale div.on{opacity:1;outline:2px solid var(--ink)}
+.race{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.race .rr{display:grid;grid-template-columns:44px minmax(0,1fr) 110px;gap:10px;align-items:center}
+.race .rt{height:22px;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.race .rf{height:100%;width:0;background:var(--primary)}
+.race .rf.g5{background:var(--signal)}
+canvas.crowd{width:100%;height:auto;display:block;background:var(--surface);border-radius:8px;border:1px solid var(--line)}
+.foot{color:var(--muted);font-size:.82rem;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-top:12px}
+  .rail{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:6px}
+  .rail .grp{display:none}
+  .rail a{white-space:nowrap;border:1px solid var(--line);background:var(--surface)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div id="app"></div>
+<script type="application/json" id="nk-config">{"sheets":[]}</script>
+<script id="nk-js">// ===== 課程資料 =====
+const TF = ['正確', '錯誤'];
+const TRACKS = {
+t114: {
+  key:'t114', short:'114 資科 3 下', name:'第 2 章　網路世界', book:'114 學年度　國中資訊科技 3 下（課本 p.36–59）',
+  intro:'從網路的發展、上網設備、TCP/IP、IP 位址、網域名稱、網路服務，一路到藍牙、Wi-Fi 與 4G／5G 行動網路。',
+  units:[
+  { id:'u1', code:'2-1 ①', title:'網路的發展與連接', pages:'p.36–39', time:'約 1 節',
+    goals:['說出網路發展的重要事件與人物','說明 ISP、數據機、路由器、網路交換器的功能','分辨區域網路（LAN）與廣域網路（WAN）','比較光纖、雙絞線、同軸電纜'],
+    points:[
+      '網路：透過有線或無線的傳輸媒介連接設備，讓彼此可以互相傳遞資訊。點餐電腦用實體網路線、筆電用 Wi-Fi、無線耳機用藍牙、手機用行動網路。',
+      '發展歷程：1969 ARPANET（美國國防部，部分設備被破壞仍能互相聯繫）→ 1974 TCP/IP（瑟夫、卡恩）→ 1983 網域名稱服務（莫卡派喬斯）→ 1989–1990 全球資訊網與瀏覽器（柏納．李，免費開放不收專利費）→ 1990 臺灣學術網路 TANet（1991 以專線連至美國普林斯頓大學）。',
+      '上網路徑：ISP（網際網路服務提供者，如中華電信）→ 數據機（類比訊號 ↔ 數位訊號）→ 路由器（安排傳送路徑；1 個 WAN 孔接外部、數個 LAN 孔接內部）→ 網路交換器（LAN 孔不夠時擴大區域網路）。',
+      '區域網路 LAN：住家、電腦教室等小範圍。廣域網路 WAN：城市、國家、洲際的大範圍，由許多區域網路組成。',
+      '線材：光纖（快、遠、成本高，網路主幹）；雙絞線（成對纏繞減少電磁干擾、距離短、便宜，電腦教室）；同軸電纜（距離長、有線電視，逐漸被雙絞線取代）。'],
+    flow:[['5 分','引起動機','請學生說出教室和家裡有哪些設備會上網、各用什麼方式連線。'],['10 分','網路發展時間軸','學生分組操作「時間軸排序」，再由老師補充每個事件的意義。'],['15 分','上網路徑','講解 ISP → 數據機 → 路由器 → 交換器，投影「家用網路接線」請學生上台放設備。'],['10 分','線材比較','進行「線材配對」，可搭配實物（網路線、同軸線）傳閱。'],['5 分','小測驗','用「小測驗」分頁即時檢核。']],
+    myths:[['數據機和路由器是同一個東西？','家用設備常把兩者整合成一台，但功能不同：數據機負責訊號轉換，路由器負責安排傳送路徑。'],['Wi-Fi 就等於網路？','Wi-Fi 只是「最後一段」的無線連接方式，背後仍需 ISP、數據機、路由器把訊號接到網際網路。']],
+    acts:['timeline114','homenet','matchCable114'],
+    quiz:[
+      ['網路最早起源於哪一個單位的軍用電腦網路？',['美國國防部（ARPANET）','歐洲核子研究中心','臺灣教育部','微軟公司'],0,'1969 年美國國防部出資架設 ARPANET，設計成部分設備被破壞時，其他區域仍能互相聯繫。'],
+      ['誰提出 TCP/IP 通訊協定，讓不同的電腦系統也能互相連接？',['文頓．瑟夫與羅伯特．卡恩','柏納．李','保羅．莫卡派喬斯','比爾．蓋茲'],0,'瑟夫與卡恩提出 TCP/IP，解決早期不同系統難以互連的問題。'],
+      ['柏納．李發明了什麼，並且免費開放給所有人使用？',['全球資訊網（WWW）與網頁瀏覽器','電子郵件','網域名稱系統','藍牙'],0,'柏納．李發明 WWW 與瀏覽器，不申請專利、不收專利費，促進網路快速發展。'],
+      ['臺灣第一個網際網路系統是？',['臺灣學術網路（TANet）','ARPANET','5G 行動網路','BBS'],0,'TANet 由教育部與大學合作建置，1991 年連接到美國普林斯頓大學。'],
+      ['負責轉換「線路上的類比訊號」與「電腦可識別的數位訊號」的設備是？',['數據機','路由器','網路交換器','網路線'],0,'數據機負責類比訊號與數位訊號之間的轉換。'],
+      ['路由器上用來連接外部網路的接孔是？',['WAN','LAN','USB','HDMI'],0,'WAN 是廣域網路接孔，連接外部網路；LAN 接孔串聯區域網路內的設備。'],
+      ['電腦教室裡連接數十台電腦的網路屬於？',['區域網路','廣域網路'],0,'住家、電腦教室、同樓層辦公室這類小範圍網路是區域網路。'],
+      ['傳輸速度快、距離遠但成本高，常用在網路主要幹道的線材是？',['光纖','雙絞線','同軸電纜','電源線'],0,'光纖由玻璃或塑膠纖維製成，速度快、距離遠，但成本較高。'],
+      ['電腦教室路由器的 LAN 接孔不夠用時，可以加裝哪一種設備？',['網路交換器','數據機','光纖','藍牙接收器'],0,'網路交換器可以擴大區域網路，讓更多設備連上。']
+    ]},
+  { id:'u2', code:'2-1 ②', title:'TCP/IP 通訊協定', pages:'p.40–41', time:'約 1 節',
+    goals:['用「搬家」比喻說明封包的切割、傳送與重組','說明 TCP 的功能：編號、確認、重送、重組','說明 IP 的功能：在封包加上網路位址'],
+    points:[
+      '網路的運作像搬家：①把原始資料切割成較小的「封包」②封包經由網路設備送到目的地 ③接收端把封包重新組合成原始資料。',
+      'TCP（傳輸控制協定）：發送端替封包編號 → 接收端每收到一個封包就回傳確認訊息 → 一定時間內沒收到確認就重新傳送 → 接收端依編號重新組合。',
+      'IP（網際網路協定）：每台上網的裝置都有一組獨一無二的網路位址；IP 協定在每個封包加上「目的地」與「發送端」的網路位址。',
+      '分工記法：TCP 管「順序與有沒有送到」，IP 管「要送到哪裡」。'],
+    flow:[['5 分','搬家比喻','問學生：大衣櫃怎麼搬到新家？引出拆開、裝箱、編號、重組。'],['10 分','講解 TCP 與 IP','對照課本圖 1-2-5，說明確認訊息與重送。'],['15 分','封包模擬','先把遺失率設 0% 觀察亂序抵達與重組，再調高遺失率或點擊封包讓它遺失，觀察重送。'],['10 分','人體封包遊戲','把一句話寫在 6 張卡（編號＋寄件／收件座號），由不同同學走不同路線傳遞，老師中途攔截一張，看接收者如何要求重送。'],['5 分','小測驗','即時檢核。']],
+    myths:[['封包一定會照順序抵達？','不一定。封包可能走不同路線、快慢不同，接收端靠 TCP 的編號重新排好。'],['TCP 和 IP 是同一個東西？','兩者合作但分工不同：TCP 負責編號與確認，IP 負責位址。']],
+    acts:['packet'],
+    quiz:[
+      ['網路傳送資料時，會先把原始資料切割成較小的單位，這些單位稱為？',['封包','網域','頻寬','位址'],0,'資料會被切割成封包，送達後再重新組合。'],
+      ['TCP 協定會在封包中加入什麼資訊？',['順序編號','網路地址','網域名稱','密碼'],0,'TCP 負責為封包編號，接收端才能依編號重組。'],
+      ['IP 協定會在封包中加入什麼資訊？',['目的地與發送端的網路位址','順序編號','檔案名稱','傳輸速度'],0,'IP 在每個封包加上目的地與發送端的網路位址。'],
+      ['發送端在一定時間內沒有收到某個封包的確認訊息，TCP 會怎麼做？',['重新傳送那個封包','放棄整份資料','改用藍牙傳送','等使用者手動處理'],0,'TCP 會重新傳送未獲確認的封包，確保資料完整。'],
+      ['接收端收到封包的順序是 3、1、2，最後能還原原始資料嗎？',['可以，依封包編號重新組合','不行，封包必須照順序抵達','只能還原第 1 個封包','必須請發送端全部重寄'],0,'TCP 編號讓接收端能依編號排好，順序亂掉也沒關係。'],
+      ['接收端每收到一個封包，就會回傳確認訊息給發送端。',TF,0,'這是 TCP 確認資料送達的方法。'],
+      ['用「搬家」來比喻，把家具拆開裝箱並在箱子寫上號碼，對應的是？',['切割成封包並編號','路由器安排路徑','數據機轉換訊號','DNS 轉換網址'],0,'拆開裝箱＝切割封包，寫號碼＝TCP 編號。']
+    ]},
+  { id:'u3', code:'2-1 ③', title:'網路位址 IPv4 與 IPv6', pages:'p.42–45', time:'約 1 節',
+    goals:['說明 IPv4 的結構與位址不足的原因','判斷公有 IP 與私有 IP','用三個規則把 IPv6 位址縮寫'],
+    points:[
+      'IPv4：4 組 8 位元二進位數字，共 32 位元；換成十進位每組 0–255，約 42 億個位址，西元 2019 年宣告用完。',
+      '解方①網路位址轉址：位址分為「公有」（連外部網路，由 ISP 分派）與「私有」（區域網路內使用，可自行設定）。像學校只有一個地址門牌，但每間教室有不同編號。',
+      '私有網路位址區段：10.0.0.0–10.255.255.255、172.16.0.0–172.31.255.255、192.168.0.0–192.168.255.255。不同區域網路可以有相同的私有位址。',
+      '路由器：WAN 孔對應公有網路位址，LAN 孔使用私有網路位址。',
+      '解方② IPv6：128 位元，可提供 2¹²⁸ 個位址，約為 IPv4 的 8×10²⁸ 倍。以 16 進位表示，分 8 組、每組 4 字，以「:」隔開。',
+      'IPv6 省略規則：①開頭的 0 可省略 ②整組 0000 可寫成 0 ③多組連續為 0 可用「::」代替（只能用一次）。'],
+    flow:[['5 分','問題引導','數一數家裡有多少裝置要上網？42 億個位址夠嗎？'],['10 分','IPv4 結構','用「IP 檢測器」輸入 192.168.7.1，看每組的 8 位元二進位。'],['10 分','公有／私有','講解轉址與學校門牌比喻，接著全班玩「公有還是私有」挑戰。'],['15 分','IPv6 縮寫','用「看步驟」示範三個規則，再讓學生練習 5 題。'],['5 分','小測驗','即時檢核。']],
+    myths:[['192.168.1.1 全世界只有一台？','私有位址只在自己的區域網路內有效，不同家庭、學校的區域網路可以重複使用。'],['「::」可以用很多次？','只能用一次。用兩次就無法判斷每個「::」各省略了幾組 0。']],
+    acts:['iptool','ipv6'],
+    quiz:[
+      ['IPv4 位址由幾組數字組成？每組的範圍是？',['4 組，0–255','4 組，0–999','8 組，0–255','6 組，0–65535'],0,'IPv4 由 4 組 8 位元組成，每組換成十進位是 0–255。'],
+      ['IPv4 位址一共有幾個位元？',['32','8','64','128'],0,'4 組 × 8 位元 = 32 位元。'],
+      ['下列哪一個是私有網路位址？',['192.168.0.10','140.112.53.185','163.21.236.8','8.8.8.8'],0,'192.168.0.0–192.168.255.255 是私有區段。'],
+      ['下列哪一個是「公有」網路位址？',['172.32.1.5','172.16.33.98','10.0.0.1','192.168.1.56'],0,'172 開頭的私有區段只有 172.16 到 172.31，172.32 不在範圍內，所以是公有位址。'],
+      ['區域網路要連上外部網路時，「網路位址轉址」是把什麼轉成什麼？',['私有網路位址轉成公有網路位址','公有轉成私有','IPv6 轉成 IPv4','網域名稱轉成 IP'],0,'私有位址只能在區域網路內使用，連外時要轉換成 ISP 分派的公有位址。'],
+      ['IPv6 位址共有多少位元？',['128','32','64','256'],0,'IPv6 有 128 位元，可提供 2¹²⁸ 個位址。'],
+      ['2531:0cb7:03a6:0000:0000:0000:0000:0f12 最精簡的寫法是？',['2531:cb7:3a6::f12','2531:cb7:3a6:0:f12','2531:0cb7:03a6::0f12','2531:cb7:3a6::::f12'],0,'去掉開頭的 0，連續 4 組 0000 用一次「::」代替。'],
+      ['在同一個 IPv6 位址中，「::」可以使用很多次。',TF,1,'「::」只能用一次，否則無法判斷各省略幾組。'],
+      ['家中路由器連接外部網路、對應公有網路位址的是哪一種接孔？',['WAN','LAN'],0,'WAN 對應公有位址；LAN 連接區域網路內的設備，使用私有位址。']
+    ]},
+  { id:'u4', code:'2-1 ④', title:'網域名稱與 DNS', pages:'p.46', time:'約 0.5 節',
+    goals:['說明網域名稱系統（DNS）的功能','拆解網域名稱的四個部分並推測網站單位'],
+    points:[
+      '數字組成的 IP 位址不易記憶，所以改用網域名稱，格式是「主機．機構．類別．地區」。',
+      '在瀏覽器輸入網域名稱時，網域名稱系統（DNS）會把名稱轉換成對應的 IP 位址再連線。',
+      '例：www.ntu.edu.tw → www（主機名稱）．ntu（機構名稱，臺灣大學）．edu（類別，教育機構）．tw（地區，臺灣）。',
+      '想一想：www.taichung.gov.tw → gov 是政府機關，可能是臺中市政府。'],
+    flow:[['5 分','比喻','手機通訊錄：記名字比記電話號碼容易，DNS 就像通訊錄。'],['10 分','DNS 查詢流程','逐步播放「DNS 查詢」動畫。'],['15 分','拆網址','用「網址解剖器」輸入學校、縣市政府網址；再做「類別配對」。']],
+    myths:[['有了網域名稱，連線就不用 IP 位址了？','電腦之間仍然用 IP 位址連線，DNS 只是幫我們把好記的名稱翻譯成 IP。']],
+    acts:['dns','url','matchDomain114'],
+    quiz:[
+      ['把網域名稱轉換成對應 IP 位址的是？',['網域名稱系統（DNS）','TCP','HTTP','ISP'],0,'DNS 負責把網域名稱轉成 IP 位址。'],
+      ['www.ntu.edu.tw 中的「edu」屬於哪一個部分？',['類別名稱，代表教育機構','主機名稱','機構名稱','地區名稱'],0,'格式是主機．機構．類別．地區，edu 是類別。'],
+      ['www.taichung.gov.tw 最可能是哪一個單位的網址？',['臺中市政府','臺中的某家公司','臺中的某所大學','臺中的非營利組織'],0,'gov 代表政府機關，taichung 是臺中。'],
+      ['網域名稱各部分的順序是？',['主機．機構．類別．地區','地區．類別．機構．主機','機構．主機．地區．類別','類別．主機．機構．地區'],0,'由左到右是主機、機構、類別、地區。'],
+      ['網域名稱最後的「tw」代表？',['地區：臺灣','類別：臺灣政府','主機名稱','機構名稱'],0,'最後一段是地區名稱，tw 是臺灣。'],
+      ['有了網域名稱之後，電腦連線就完全不需要 IP 位址。',TF,1,'DNS 會把網域名稱轉成 IP 位址，電腦仍用 IP 連線。']
+    ]},
+  { id:'u5', code:'2-1 ⑤', title:'網路服務應用', pages:'p.47–51', time:'約 1 節',
+    goals:['說明全球資訊網、HTTP、HTML 的關係','正確使用電子郵件的副本與密件副本','比較即時通訊與電子郵件','說明串流媒體與物聯網的應用'],
+    points:[
+      '全球資訊網：用超文件傳輸協定（HTTP）傳遞資料，網頁內容用超文件標示語言（HTML）呈現；超連結讓我們在網頁間移動。網址開頭 https 的「s」代表傳輸過程有加密（secure）。',
+      '電子郵件：以 SMTP 傳送郵件，以 POP3 從伺服器下載信件。副本：所有收件者都看得到；密件副本：其他收件者看不到。可夾帶檔案、搜尋、用資料夾分類。',
+      '即時通訊：Google Meet、LINE 等，可即時傳文字、影音、檔案、語音視訊。社群平臺與 BBS（臺灣最著名的是 1995 年創立的批踢踢實業坊）。',
+      '隨選視訊與串流媒體：把多媒體資料壓縮後分批傳送，邊看邊下載。',
+      '物聯網（IoT）：物與物之間建立網路連線。例：LASS 環境感測器網路，把 PM2.5 資料整理到「紫爆在哪裡」平臺；濃度超過 70 μg/m³ 為第 10 級，警示色為紫色。'],
+    flow:[['10 分','WWW 與 HTTP/HTML','打開任一網頁，觀察網址開頭是 http 還是 https。'],['15 分','電子郵件','用「副本模擬器」完成兩個任務，觀察每個收件人看到什麼。'],['10 分','串流與物聯網','用「PM2.5 感測站」模擬感測器數值，討論戶外活動建議。'],['10 分','服務配對＋小測驗','完成配對後做小測驗。']],
+    myths:[['寄給很多人時放「副本」就好？','副本會讓所有人看到彼此的信箱；不想公開收件人信箱時應用「密件副本」。'],['https 的網站就一定安全？','https 代表傳輸過程有加密，但網站本身是否可信仍要判斷。']],
+    acts:['email','pm25','matchService114'],
+    quiz:[
+      ['網址以「https」開頭，其中的「s」代表什麼？',['傳輸過程進行資料加密（secure）','速度比較快（speed）','伺服器（server）','簡單（simple）'],0,'https 的 s 指 secure，傳輸過程會加密。'],
+      ['網頁上的內容是用哪一種語言來呈現的？',['HTML','HTTP','SMTP','POP3'],0,'HTML（超文件標示語言）讓網頁呈現文字、影像、聲音、影片。'],
+      ['傳送電子郵件時使用的通訊協定是？',['SMTP','POP3','HTML','DNS'],0,'SMTP 負責寄信，POP3 負責從伺服器下載信件。'],
+      ['老師要寄通知給全班家長，又不想讓家長看到彼此的信箱，應該把家長信箱放在？',['密件副本','副本','收件者','主旨'],0,'密件副本的收件人，其他收件者看不到。'],
+      ['可以一邊看影片、一邊下載後續影音資料的技術稱為？',['串流媒體','物聯網','電子布告欄','網域名稱'],0,'串流媒體把資料壓縮後分批傳送，邊看邊下載。'],
+      ['把感測器與電器連上網路，提供遠端操控或數值監控的服務是？',['物聯網','即時通訊','隨選視訊','BBS'],0,'物聯網讓物與物之間建立連線、互傳資料。'],
+      ['PM2.5 濃度超過 70 μg/m³（第 10 級）時，警示顏色是？',['紫色','綠色','黃色','藍色'],0,'第 10 級的警示色是紫色，所以俗稱「紫爆」。'],
+      ['放在「副本」欄位的收件人，其他收件者都看得到。',TF,0,'副本的收件人所有人都看得到；密件副本才看不到。']
+    ]},
+  { id:'u6', code:'2-2 ①', title:'藍牙與 Wi-Fi', pages:'p.52–57', time:'約 1.5 節',
+    goals:['比較藍牙、Wi-Fi、行動網路的特性','說明藍牙的配對與版本相容','看懂 Wi-Fi 基地臺規格並說出選購考量'],
+    points:[
+      '無線網路以電磁波作為傳輸媒介。常見：藍牙、Wi-Fi、行動網路。',
+      '藍牙：1994 年由愛立信、Nokia、Intel 共同發明；短距離、低耗能、低成本，稱為「無線個人網路」；傳輸距離約 10–300 公尺。首次使用要先配對；版本向下相容，但速度以較低版本為主。',
+      'Wi-Fi：「無線區域網路」，同區域的電腦不用網路線就能上網。傳輸距離開放空間約 300 公尺、室內約 100 公尺（實際合理約 50 公尺），易受遮蔽物影響。',
+      'Wi-Fi 版本由 IEEE 制定（1997 年第一個標準 IEEE 802.11）。主流為 Wi-Fi 5（802.11ac，2013）與 Wi-Fi 6（802.11ax，2019），都支援 5 GHz（快、距離短）與 2.4 GHz（慢、傳得遠）。',
+      '基地臺規格：AC＝Wi-Fi 5、AX＝Wi-Fi 6；數字是兩個頻段最高速率相加，例如 450＋1300＝1750。',
+      '選購考量：①設備支援的 Wi-Fi 版本（向下支援，速度以較舊版本為準）②租用的網路頻寬（上網速度不會高於租用頻寬）。'],
+    flow:[['10 分','三種無線網路','用「無線距離比較」對照應用情境。'],['15 分','藍牙','討論藍牙耳機、智慧手錶、電動機車；說明配對與版本相容。'],['20 分','Wi-Fi 與選購','用「Wi-Fi 速度瓶頸」改變設備、基地臺、頻寬，找出誰卡住速度；再用「標示速率計算」看懂盒子上的數字。'],['10 分','情境挑戰＋小測驗','判斷各情境該用哪種無線技術。']],
+    myths:[['買最快的 Wi-Fi 6 基地臺，上網就會變超快？','速度會被「較舊的設備版本」和「租用的頻寬」限制住。'],['5 GHz 一定比 2.4 GHz 好？','5 GHz 較快但距離短；隔很多牆時 2.4 GHz 反而比較穩。']],
+    acts:['wireless','wifiCalc','scenario'],
+    quiz:[
+      ['藍牙主要用於個人設備的連接，因此又稱為？',['無線個人網路','無線區域網路','無線廣域網路','有線網路'],0,'藍牙短距離、低耗能，稱為無線個人網路。'],
+      ['Wi-Fi 讓同區域的電腦不用網路線就能上網，又稱為？',['無線區域網路','無線個人網路','無線廣域網路','物聯網'],0,'Wi-Fi 又稱無線區域網路。'],
+      ['Wi-Fi 的哪一個頻段傳輸速率快，但距離比較短？',['5 GHz','2.4 GHz'],0,'5 GHz 快但距離短；2.4 GHz 慢但傳得遠。'],
+      ['Wi-Fi 基地臺標示「AX」，代表哪一個版本？',['Wi-Fi 6','Wi-Fi 5','Wi-Fi 4','藍牙 5.2'],0,'Wi-Fi 6 的標準是 IEEE 802.11ax，標示為 AX。'],
+      ['某基地臺 2.4 GHz 可達 450 Mbps、5 GHz 可達 1300 Mbps，速率會標示為？',['1750','1300','850','450'],0,'最高理想速率是兩個頻段相加：450＋1300＝1750。'],
+      ['筆電只支援 Wi-Fi 5，連上 Wi-Fi 6 基地臺，最快能達到？',['Wi-Fi 5 的速率上限','Wi-Fi 6 的速率上限','兩者相加','無法連線'],0,'Wi-Fi 向下支援，但速度依較舊的版本。'],
+      ['家裡租用 100 Mbps 的網路，換了很快的 Wi-Fi 6 基地臺後，上網速度會？',['不會高於 100 Mbps','變成 9607.8 Mbps','變成 1750 Mbps','變慢一半'],0,'上網速度受限於向 ISP 租用的頻寬。'],
+      ['藍牙裝置第一次使用時要先配對，配對成功後不須經過網路基地臺就能直接使用。',TF,0,'藍牙配對成功後就能直接連線。']
+    ]},
+  { id:'u7', code:'2-2 ②', title:'行動網路 4G 與 5G', pages:'p.58–59', time:'約 0.5 節',
+    goals:['說明行動網路與頻寬的意義','說出 5G 的三大特性與應用','解釋 5G 需要更密集基地臺的原因'],
+    points:[
+      '行動網路：手機與基地臺通訊，涵蓋範圍廣，稱為「無線廣域網路」；基地臺約 250–800 公尺一座。',
+      '4G：建置完善、基地臺多；使用者共用頻寬，人多時會負荷困難。頻寬＝同一時間內所能容許的資料流通量。',
+      '5G 三大特性：高速度（約為 4G 的 100 倍：2 小時高畫質影片 4G 約 6 分鐘、5G 約 3.6 秒）、低延遲（遠距醫療）、多連結（4G 基地臺約 100 台設備，5G 可上萬台）。',
+      '5G 使用「6 GHz 以下」與「24 GHz 以上」頻率；24 GHz 以上速度快但距離短、易受障礙物影響，需要更密集的基地臺，建置成本較高。'],
+    flow:[['10 分','5G 三大特性','用「4G vs 5G」先跑下載賽跑，再拉人數滑桿模擬跨年人潮。'],['10 分','討論','為什麼 5G 基地臺要蓋得比較密？遠距醫療為什麼需要低延遲？'],['5 分','小測驗','即時檢核。']],
+    myths:[['5G 訊號一定比 4G 傳得遠？','高頻率的 5G 傳輸距離較短、易被擋住，所以需要更多基地臺。']],
+    acts:['g5'],
+    quiz:[
+      ['行動網路的基地臺涵蓋範圍廣，因此又稱為？',['無線廣域網路','無線區域網路','無線個人網路','區域網路'],0,'行動網路稱為無線廣域網路。'],
+      ['5G 行動網路的三大特性是？',['高速度、低延遲、多連結','低成本、短距離、低耗能','有線、穩定、便宜','加密、匿名、免費'],0,'5G 特性是高速度、低延遲、多連結。'],
+      ['醫生透過網路即時進行遠距手術，最需要 5G 的哪一個特性？',['低延遲','多連結','低耗能','長距離'],0,'延遲時間短可以降低失誤機率。'],
+      ['跨年晚會人潮擁擠時，4G 常收不到訊號；5G 的哪一個特性可以改善？',['多連結','低延遲','低耗能','加密'],0,'4G 基地臺約可同時連 100 台設備，5G 可容納上萬台。'],
+      ['5G 使用 24 GHz 以上頻率時，為什麼需要建置更密集的基地臺？',['頻率高、傳輸距離短、易受障礙物影響','頻率低、穿透力太強','使用者太少','法律規定'],0,'高頻電磁波速度快但距離短、易被擋住。'],
+      ['「頻寬」指的是什麼？',['同一時間內所能容許的資料流通量','基地臺的寬度','網路線的粗細','電磁波的顏色'],0,'頻寬越大，資料傳輸效率越高。'],
+      ['4G 網路的使用者共用頻寬，當使用者增多時，網路可能會負荷困難。',TF,0,'這是 4G 的限制之一。']
+    ]}
+  ]},
+
+t115: {
+  key:'t115', short:'115 資科 3 上', name:'第 3 章　網路技術與服務', book:'115 學年度　國中資訊科技 3 上 L03（課本 p.238–271）',
+  intro:'電腦網路的硬體與軟體、TCP／IP／UDP、各種無線通訊、封包交換、IP 位址與 VPN、網域名稱與 URL，以及生活中的網路服務。',
+  units:[
+  { id:'u1', code:'3-1', title:'網路技術的概念', pages:'p.240–246', time:'約 1.5 節',
+    goals:['說明電腦網路的功能與「協定」的意義','分辨伺服器與終端設備','分類有線與無線傳輸媒介','說出常見連結裝置的功能','分辨網路作業系統與網路應用軟體'],
+    points:[
+      '電腦網路：依照通訊協定連接，讓電腦彼此傳遞訊息、資料與共享資源。協定就是電腦之間溝通的語言。',
+      '網路伺服器是網路的核心設備：網站伺服器（存放網頁）、郵件伺服器（收發郵件）、資料庫伺服器（存放資料）。終端設備是使用者的電腦、平板、手機。',
+      '有線傳輸媒介：光纖（玻璃纖維、傳光訊號、高速網路）、雙絞線（兩兩纏繞的銅線、區域網路布線）、同軸電纜（銅線外包絕緣體）。',
+      '無線傳輸媒介：微波（只能直線傳輸，GPS、新聞轉播）、廣播電波（穿透力強、不受方向限制，如藍牙、Wi-Fi）、紅外線（如電視遙控器）。',
+      '連結裝置：網路卡（實體位址）、數據機（類比↔數位）、中繼器（增強訊號）、集線器（集中管理網路線）、交換器（多對連接埠同時交換，已取代集線器）、橋接器（連接同網路不同區段、過濾封包）、路由器（選擇最佳路徑）、閘道器（連接不同協定的網路）、IP 分享器（多台共用一個 IP）、無線基地臺 AP。',
+      '網路軟體：網路作業系統 NOS（Windows Server、Linux、Unix）負責資源分配、安全控制、網路管理；網路應用軟體（瀏覽器、電子郵件、搜尋引擎、視訊軟體、Apps）。'],
+    flow:[['10 分','網路的功能','討論：沒有網路時，班上要怎麼分享一份檔案？引出「傳遞訊息、共享資源」。'],['10 分','伺服器與終端','用「伺服器配對」認識三種伺服器。'],['15 分','傳輸媒介','完成「傳輸媒介配對」，可傳閱實體網路線。'],['20 分','連結裝置','分兩回合完成「連結裝置配對」，再用「家用網路接線」把設備放到正確位置。'],['10 分','網路軟體＋小測驗','舉例 NOS 與應用軟體後做小測驗。']],
+    myths:[['伺服器一定是很大台的專用機器？','功能較強的個人電腦、筆記型電腦也可以當作伺服器。'],['集線器和交換器一樣？','交換器允許同一時間 2 對以上的連接埠交換訊息，效率較好，已逐漸取代集線器。']],
+    acts:['matchServer115','matchMedia115','matchDevA115','matchDevB115','homenet'],
+    quiz:[
+      ['讓電腦可以彼此互相溝通的語言，稱為？',['協定','網域','封包','伺服器'],0,'電腦之間依照通訊協定溝通。'],
+      ['存放可供瀏覽器讀取網頁資料的伺服器是？',['網站伺服器','郵件伺服器','資料庫伺服器','終端設備'],0,'網站伺服器存放網頁資料。'],
+      ['下列何者屬於「無線」傳輸媒介？',['微波','光纖','雙絞線','同軸電纜'],0,'微波、廣播電波、紅外線是無線傳輸媒介。'],
+      ['電視遙控器是利用哪一種傳輸媒介？',['紅外線','微波','光纖','廣播電波'],0,'紅外線以紅外線光波傳送訊號。'],
+      ['每張網路卡都有一個獨一無二的編號，稱為？',['實體位址','IP 位址','網域名稱','埠位址'],0,'網路卡的唯一編號稱為實體位址。'],
+      ['用來連接「使用不同通訊協定」網路的裝置是？',['閘道器','集線器','中繼器','數據機'],0,'閘道器連接使用不同通訊協定的網路。'],
+      ['具有傳輸資料及路徑選擇功能，可替資料選擇最佳路徑的是？',['路由器','中繼器','網路卡','集線器'],0,'路由器負責選擇最佳傳送路徑。'],
+      ['已經逐漸取代集線器的連結裝置是？',['交換器','數據機','中繼器','橋接器'],0,'交換器同時允許多對連接埠交換訊息。'],
+      ['下列何者是網路作業系統？',['Linux','Chrome','Gmail','Zoom'],0,'Windows Server、Linux、Unix 是網路作業系統；其他是應用軟體。'],
+      ['用來增強訊號、彌補訊號傳輸距離限制的裝置是？',['中繼器','橋接器','閘道器','IP 分享器'],0,'中繼器（repeater）負責增強訊號。']
+    ]},
+  { id:'u2', code:'3-2-1', title:'TCP／IP 與 UDP', pages:'p.247–248', time:'約 1 節',
+    goals:['說出 TCP/IP 的由來','比較 TCP 與 UDP 的傳輸方式','依需求判斷該用 TCP 或 UDP'],
+    points:[
+      '1970 年代美國國防部 ARPAnet 開創網際網路；1974 年卡恩與瑟夫提出 TCP/IP（兩人 2004 年獲得圖靈獎）。',
+      'TCP/IP 是協定集，三個主要協定：TCP、IP、UDP。',
+      'TCP（傳輸控制協定）：傳送端與接收端不斷確認資料是否送達，沒收到「已收到」的訊息就重傳。可靠但速度較慢，適合需要高可靠性的傳輸。',
+      'IP（網際網路協定）：資料經過節點時，檢查接收端與傳送端的位址，再決定傳送途徑。',
+      'UDP（使用者資料包協定）：不確認是否送達、遺失也不重傳，速度較快，適合效能優先的傳輸。'],
+    flow:[['5 分','情境','傳作業檔案 vs 視訊通話：哪個不能少一個字？哪個不能卡住？'],['15 分','TCP 與 UDP','對照課本圖 3-3、3-4。'],['20 分','封包模擬','同一句話、相同遺失率，分別用 TCP 與 UDP 傳送，比較結果與花費時間。'],['5 分','小測驗','即時檢核。']],
+    myths:[['UDP 會遺失資料，所以是不好的協定？','UDP 用可靠度換速度，適合即時性重要的傳輸，各有適用情境。']],
+    acts:['packet'],
+    quiz:[
+      ['提出 TCP/IP 的是哪兩位學者？',['羅伯特．卡恩與文頓．瑟夫','柏納．李與比爾．蓋茲','艾倫．圖靈與馮紐曼','賈伯斯與沃茲尼克'],0,'1974 年卡恩與瑟夫提出 TCP/IP。'],
+      ['卡恩與瑟夫在 2004 年獲得被稱為「電腦界諾貝爾獎」的是？',['圖靈獎','諾貝爾物理獎','普立茲獎','費爾茲獎'],0,'圖靈獎由 ACM 設立，紀念艾倫．圖靈。'],
+      ['傳送資料時，傳送端與接收端會不斷確認資料是否送達的是？',['TCP','UDP','IP','NFC'],0,'TCP 會確認送達，可靠度高。'],
+      ['不確認資料是否送達、遺失也不重傳，但速度較快的是？',['UDP','TCP','HTTP','DNS'],0,'UDP 以效能優先。'],
+      ['下載一份作業檔案，必須每個位元都正確，較適合使用？',['TCP','UDP'],0,'需要可靠性高的傳輸適合 TCP。'],
+      ['資料經過節點時，檢查接收端與傳送端的位址再決定傳送途徑的是？',['IP','TCP','UDP','URL'],0,'IP 負責依位址決定傳送途徑。'],
+      ['UDP 的傳輸速度比 TCP 慢。',TF,1,'UDP 不需要確認與重傳，速度較快。'],
+      ['線上直播以即時、流暢為優先，偶爾少幾格畫面沒關係，較適合使用？',['UDP','TCP'],0,'效能優先的傳輸可以選擇 UDP（延伸應用）。']
+    ]},
+  { id:'u3', code:'3-2-2', title:'無線通訊', pages:'p.249–251', time:'約 1 節',
+    goals:['比較常見無線通訊類型的傳輸距離與用途','分辨 Wi-Fi 與個人熱點的差別','依情境選用合適的無線通訊技術'],
+    points:[
+      '無線通訊：不使用固定纜線的遠距傳輸，是目前最受歡迎的主流技術。',
+      '案例：咖啡廳的寬頻機房維修，店家 Wi-Fi 上不了網，但手機的「個人熱點」仍可分享網路——因為兩者是不同型態的無線通訊。',
+      '低軌衛星：約 2000 公里，運行低於地球軌道的衛星，主要用於通訊。',
+      '行動網路：約 100 公尺，用於手機與數位終端設備，目前常見 4G、5G（5G 較新、速度較快）。',
+      'Wi-Fi：約 50 公尺，全名無線相容認證；由一台連接實體網路線的無線基地臺發送無線電波。個人熱點：利用行動數據分享網路給其他裝置。',
+      '藍牙：約 30 公尺，與行動裝置在短距離交換資料。RFID：約 10 公尺，用無線電訊號識別特定對象。NFC：約 4 公分，以電磁感應電流訊號在短距離傳資料。'],
+    flow:[['10 分','案例討論','閱讀咖啡廳案例：為什麼 Wi-Fi 斷了，熱點卻能用？'],['20 分','距離比較','用「無線距離比較」由近到遠介紹七種技術。'],['10 分','情境挑戰','全班判斷各情境要用哪一種技術。'],['5 分','小測驗','即時檢核。']],
+    myths:[['Wi-Fi 和手機熱點一樣？','Wi-Fi 基地臺背後接的是實體寬頻線路；熱點用的是手機的行動數據。寬頻斷線時 Wi-Fi 也上不了網。']],
+    acts:['wireless','scenario'],
+    quiz:[
+      ['依課本，傳輸距離最遠的無線通訊類型是？',['低軌衛星','行動網路','Wi-Fi','藍牙'],0,'低軌衛星約 2000 公里。'],
+      ['傳輸距離約 4 公分，以電磁感應的電流訊號傳送資料的是？',['NFC','RFID','藍牙','Wi-Fi'],0,'NFC 約 4 公分。'],
+      ['利用手機的行動數據，把網路分享給其他裝置使用的是？',['個人熱點','Wi-Fi 基地臺','RFID','低軌衛星'],0,'個人熱點分享行動數據。'],
+      ['咖啡廳的寬頻網路因機房維修暫停，店家 Wi-Fi 上不了網，這時仍可用什麼上網？',['手機行動網路或個人熱點','店家的 Wi-Fi','藍牙耳機','RFID 標籤'],0,'Wi-Fi 基地臺連接實體寬頻線路，寬頻停了 Wi-Fi 也無法上網；行動網路不受影響。'],
+      ['使用無線電訊號來識別特定對象或裝置的技術是？',['RFID','NFC','Wi-Fi','4G'],0,'RFID 約 10 公尺，用於識別。'],
+      ['依課本的傳輸距離，下列由遠到近排列何者正確？',['行動網路 > Wi-Fi > 藍牙 > NFC','藍牙 > Wi-Fi > 行動網路 > NFC','NFC > 藍牙 > Wi-Fi > 行動網路','Wi-Fi > 行動網路 > NFC > 藍牙'],0,'行動網路約 100 公尺、Wi-Fi 約 50 公尺、藍牙約 30 公尺、NFC 約 4 公分。'],
+      ['Wi-Fi 是由一台連接了實體網路線的無線基地臺，發送無線電波給其他裝置連線使用。',TF,0,'這就是 Wi-Fi 的運作方式。']
+    ]},
+  { id:'u4', code:'3-3', title:'資料交換技術', pages:'p.252', time:'約 0.5 節',
+    goals:['說明封包交換的三個階段','解釋封包為何可能亂序抵達以及如何重組'],
+    points:[
+      '資料交換技術：為了把資料正確且快速地傳到接收端而制定的傳輸路徑管理方法；網際網路採用「封包交換」。',
+      '①資料傳輸前：把資料分割成許多特定大小的封包，並依序編號。',
+      '②資料傳輸時：網路節點依封包指定的傳輸位址決定路徑，不同封包可能走不同路徑。',
+      '③資料傳輸完成：接收端把封包依序重新排列，重組成原始資料。'],
+    flow:[['5 分','比喻','寄一整套百科全書：分箱寄送，每箱走不同物流路線，最後依箱號排好。'],['15 分','封包模擬','把遺失率設 0%，觀察封包走不同節點、亂序抵達，再依編號重組。'],['5 分','排序活動＋小測驗','完成「封包交換三步驟」排序與小測驗。']],
+    myths:[['同一份資料的封包會排隊走同一條路？','每個封包在節點上各自決定路徑，可能走不同路線、先後抵達。']],
+    acts:['packet','seqSwitch115'],
+    quiz:[
+      ['網際網路採用哪一種資料交換技術來傳輸資料？',['封包交換','電路交換','人工交換','實體交換'],0,'網際網路採用封包交換。'],
+      ['資料傳輸「前」會先做什麼？',['分割成特定大小的封包並依序編號','重組成原始資料','由節點決定路徑','轉換成網域名稱'],0,'傳輸前先分割並編號。'],
+      ['網路節點依據什麼來決定封包的傳輸路徑？',['封包所指定的傳輸位址','封包的大小','封包的顏色','使用者的帳號'],0,'節點依封包指定的位址決定路徑。'],
+      ['封包抵達的順序和送出時不同，接收端會怎麼做？',['依序重新排列後重組成原始資料','直接丟掉','要求全部重送','只保留第一個封包'],0,'傳輸完成時依序排列、重組。'],
+      ['同一份資料的所有封包，一定會走同一條路徑。',TF,1,'封包可能走不同路徑。'],
+      ['封包交換的正確順序是？',['分割編號 → 節點選路傳送 → 排序重組','排序重組 → 分割編號 → 節點選路傳送','節點選路傳送 → 分割編號 → 排序重組','分割編號 → 排序重組 → 節點選路傳送'],0,'傳輸前、傳輸時、傳輸完成三個階段。']
+    ]},
+  { id:'u5', code:'3-4-1', title:'IP 位址與 VPN', pages:'p.253–254', time:'約 1 節',
+    goals:['說明 IP 位址的功能與結構','判斷 IP 位址是否合法','說明 VPN 的用途與使用時應注意的事'],
+    points:[
+      '每戶人家都有地址，寄東西才能送達；連上網際網路的每台主機也都需要網際網路協定位址（IP 位址）。',
+      'IP 位址由四個介於 0–255 的數值組成，以「.」隔開，例如 10.13.83.11。在 Windows 可從「工作管理員」的乙太網路查看。',
+      'VPN（虛擬私人網路）：加密使用者的網路流量，可以隱藏 IP 位址、瀏覽習慣，也可以改變網路連線位置。',
+      '教學提醒：使用 VPN 仍須遵守法律與網站的使用規範；VPN 不會讓網路變快。'],
+    flow:[['5 分','地址比喻','沒有地址的包裹送得到嗎？'],['15 分','IP 結構','用「IP 檢測器」讓學生輸入各種數字，判斷合不合法；可示範在工作管理員查看自己的 IP。'],['15 分','VPN','閱讀課本案例 2，用「VPN 模擬」切換開關，觀察網站看到的 IP 與中間人看到的內容。'],['10 分','討論＋小測驗','討論公共 Wi-Fi 的隱私風險與合法使用。']],
+    myths:[['用了 VPN 就完全匿名、做什麼都可以？','VPN 只是加密並改變連線位置，使用者的行為仍須守法。']],
+    acts:['iptool','vpn'],
+    quiz:[
+      ['IP 位址是由幾個數值組成？每個數值的範圍是？',['四個，0–255','四個，0–999','三個，0–255','六個，0–100'],0,'IP 位址由四個 0–255 的數值組成。'],
+      ['下列哪一個不是合法的 IP 位址？',['192.168.1.256','10.13.83.11','140.112.8.1','0.0.0.0'],0,'每個數值最大只到 255。'],
+      ['VPN 的中文全名是？',['虛擬私人網路','虛擬公共網路','無線個人網路','網域名稱系統'],0,'VPN = Virtual Private Network。'],
+      ['下列何者「不是」VPN 的功能？',['保證讓網路速度變快','加密網路流量','隱藏使用者的 IP 位址','改變網路連線位置'],0,'VPN 會加密、隱藏 IP、改變連線位置，但不保證變快。'],
+      ['連上網際網路的每台電腦主機，都需要有通訊位址才能收到資料。',TF,0,'就像寄東西需要地址。'],
+      ['IP 位址中的數值之間，用什麼符號隔開？',['.（點）',':（冒號）','/（斜線）','-（減號）'],0,'例如 10.13.83.11。']
+    ]},
+  { id:'u6', code:'3-4-2', title:'網域名稱、DNS 與 URL', pages:'p.255–257', time:'約 1 節',
+    goals:['拆解網域名稱的四個部分','說明 DNS 的功能','拆解 URL 並說出常用通訊協定'],
+    points:[
+      'IP 位址不易記，所以用有意義的「網域名稱」取代。由主機名稱、機構名稱、機構類別、地理名稱四部分組成，以「.」連結。例：www．ncl．edu．tw（國家圖書館）。',
+      'TWNIC（臺灣網路資訊中心）統籌國內網域名稱與 IP 位址發放；國內也有中文網域名稱，例如「中文.台灣」。',
+      '網域名稱伺服器（DNS）把網域名稱轉換成機器可以辨識的 IP 位址。',
+      '機構類別：mil 軍事、gov 政府、com 公司、net 網路機構、edu 教育、org 非營利組織。地理名稱：au 澳洲、ca 加拿大、fr 法國、jp 日本、kr 韓國、tw 臺灣；美國省略不寫。',
+      'URL（全球資源定位器）：通訊協定://網域名稱:埠位址/路徑檔名，例 http://cap.rcpet.edu.tw:80/files.html。瀏覽器預設 http 可省略；http 的埠位址預設 80，通常省略。',
+      '常用協定：http（全球資訊網）、ftp（檔案傳輸）、mailto（電子郵件）、telnet（遠端登入）、file（檔案伺服器）。'],
+    flow:[['10 分','網域名稱','用「網址解剖器」拆國家圖書館、原民會、國教院網址。'],['10 分','DNS','逐步播放「DNS 查詢」。'],['15 分','URL','拆解國中教育會考網址，完成「通訊協定配對」與「機構類別配對」。'],['5 分','小測驗','即時檢核。']],
+    myths:[['網址一定要打 http:// 才連得上？','瀏覽器預設 http，可以省略；埠位址 80 通常也省略。']],
+    acts:['url','dns','matchProto115','matchCat115'],
+    quiz:[
+      ['國內負責統籌網域名稱及 IP 位址發放的組織是？',['TWNIC 臺灣網路資訊中心','ACM','IEEE','ISP'],0,'TWNIC 統籌國內網域名稱與 IP 位址。'],
+      ['國家圖書館網址 www.ncl.edu.tw 中，「ncl」是哪一個部分？',['機構名稱','主機名稱','機構類別','地理名稱'],0,'www 主機、ncl 機構、edu 類別、tw 地理。'],
+      ['機構類別「.org」代表？',['非營利組織','政府機關','公司行號','軍事機關'],0,'org 是非營利組織。'],
+      ['機構類別「.mil」代表？',['軍事機關','網路機構','教育機構','公司行號'],0,'mil 是軍事機關。'],
+      ['網域名稱中沒有地理名稱時，通常代表哪個國家？',['美國','臺灣','日本','英國'],0,'若地理名稱是美國，則省略不寫。'],
+      ['在 http://cap.rcpet.edu.tw:80/files.html 中，「80」是？',['埠位址','路徑檔名','機構名稱','通訊協定'],0,'http 的埠位址預設為 80。'],
+      ['要進行「檔案傳輸」時使用的通訊協定是？',['ftp','http','mailto','telnet'],0,'ftp 用於檔案傳輸。'],
+      ['把網域名稱轉換成 IP 位址的伺服器是？',['網域名稱伺服器（DNS）','網站伺服器','郵件伺服器','資料庫伺服器'],0,'DNS 存有網域名稱與 IP 的對應資料。'],
+      ['在瀏覽器輸入網址時，「http://」可以省略。',TF,0,'瀏覽器預設的通訊協定為 http。']
+    ]},
+  { id:'u7', code:'3-5', title:'網路服務的概念與介紹', pages:'p.258–267', time:'約 1 節',
+    goals:['說明全球網路如何串連','分類生活中的各種網路服務','說出影音、社群、雲端服務的特色'],
+    points:[
+      '有線網路以海底電纜串連世界各地，海纜登陸站把海底電纜接上陸地；再透過無線基地臺連到筆電、手機、平板、智慧家電。使用網路需向業者按時付費。',
+      '教育內容服務：教育部因材網、臺北酷課雲、均一教育平臺、學習吧。',
+      '日常生活網路服務：掛號、訂票、餐飲、購物、旅遊、金融交易等。',
+      '校園網路服務：例如國立臺灣師範大學，服務對象限該校師生、員工及校友。',
+      '影音分享服務：YouTube 不登入也能看；上傳、分享、評論需登入。媒體串流讓使用者邊傳送邊觀看。',
+      '社群交流服務：臉書以文字為主、圖片影片為輔；Instagram 以圖片影片為主、文字為輔。',
+      '雲端作業服務：Google 文件、簡報、試算表用瀏覽器登入即可使用；雲端硬碟有免費 15GB 空間，可與他人共用。'],
+    flow:[['10 分','網路怎麼連到全世界','介紹海底電纜與海纜登陸站。'],['15 分','服務分類','完成「網路服務分類」配對，請學生分享自己用過的服務。'],['15 分','雲端服務實作','建立一份共用 Google 文件，體驗即時共編。'],['5 分','小測驗','即時檢核。']],
+    myths:[['網路服務都是免費的？','有些免費、有些收費，而且上網本身就需要向業者付費。']],
+    acts:['matchSvc115'],
+    quiz:[
+      ['把全球網路串連在一起的有線網路建設是？',['海底電纜','低軌衛星','藍牙','RFID'],0,'海底電纜串連世界各地。'],
+      ['海底電纜連接到陸地上的地點稱為？',['海纜登陸站','無線基地臺','網域名稱伺服器','數據機'],0,'海纜登陸站把海底電纜接上陸地網路。'],
+      ['均一教育平臺屬於哪一類網路服務？',['教育內容服務','日常生活網路服務','校園網路服務','社群交流服務'],0,'因材網、酷課雲、均一、學習吧都是教育內容服務。'],
+      ['使用 YouTube 時，哪一項功能「不用登入」就能使用？',['觀看影片','上傳影片','留言評論','分享到自己的頻道'],0,'不登入可以觀看，上傳、分享、評論需登入。'],
+      ['讓使用者在影片傳送的同時，就能觀看已接收部分的是哪一種技術？',['媒體串流','NFC','VPN','FTP'],0,'媒體串流讓我們邊下載邊看。'],
+      ['Instagram 與臉書在介面設計上的主要差異是？',['Instagram 以圖片影片為主，臉書以文字為主','Instagram 只能傳文字','臉書不能放影片','兩者完全相同'],0,'臉書文字為主、IG 圖片影片為主。'],
+      ['Google 雲端硬碟提供多少免費空間？',['15GB','1GB','100GB','1TB'],0,'課本說明享有免費 15GB 空間。'],
+      ['使用 Google 文件前，必須先下載安裝「Google 文件」軟體。',TF,1,'只要登入 Google 帳戶，用瀏覽器就能使用。']
+    ]}
+  ]}
+};
+
+// ===== 配對、排序活動資料 =====
+const MATCH = {
+  matchCable114:{title:'線材配對',left:'線材',right:'特色',pairs:[
+    ['光纖','玻璃或塑膠纖維；速度快、距離遠、成本高，用於主要幹道'],
+    ['雙絞線','成對電線互相纏繞減少電磁干擾；距離短、成本低，用於電腦教室'],
+    ['同軸電纜','銅芯外包絕緣體與銅網；有線電視訊號，逐漸被雙絞線取代']]},
+  matchDomain114:{title:'類別名稱配對',left:'類別名稱',right:'代表的單位',pairs:[
+    ['edu','教育機構（學校）'],['gov','政府機關'],['com','公司行號'],['org','非營利組織'],['net','網路機構'],['tw','地區：臺灣']]},
+  matchService114:{title:'網路服務配對',left:'名詞',right:'說明',pairs:[
+    ['HTTP','瀏覽器向網站發出請求、建立連線的傳輸標準'],['HTML','將網頁內容結構化，呈現文字、影像、影片的語言'],
+    ['SMTP','傳送電子郵件的協定'],['POP3','從伺服器下載信件到自己電腦的協定'],
+    ['串流媒體','多媒體資料壓縮後分批傳送，邊看邊下載'],['物聯網','物與物之間建立網路連線，可遠端操控或監控']]},
+  matchServer115:{title:'伺服器配對',left:'伺服器',right:'功能',pairs:[
+    ['網站伺服器','存放可供瀏覽器讀取的網頁資料'],['郵件伺服器','收發郵件'],['資料庫伺服器','存放可供使用者存取的資料'],['終端設備','使用者的電腦、平板、手機，連網後使用伺服器的服務']]},
+  matchMedia115:{title:'傳輸媒介配對',left:'傳輸媒介',right:'特色',pairs:[
+    ['光纖','有線｜極細玻璃纖維傳光訊號，用於高速網路'],['雙絞線','有線｜兩兩纏繞的銅線，用於區域網路布線'],['同軸電纜','有線｜銅線外包一層絕緣體'],
+    ['微波','無線｜只能直線傳輸，用於 GPS、新聞轉播'],['廣播電波','無線｜穿透力強、不受方向限制，如藍牙、Wi-Fi'],['紅外線','無線｜以紅外線光波傳送，如電視遙控器']]},
+  matchDevA115:{title:'連結裝置配對（一）',left:'裝置',right:'功能',pairs:[
+    ['網路卡','連網必備，每張都有獨一無二的實體位址'],['數據機','轉換類比訊號與數位訊號'],['中繼器','增強訊號，彌補傳輸距離限制'],['集線器','集中管理網路線，連結並重新分配訊號'],['交換器','同時允許 2 對以上連接埠交換訊息，已取代集線器']]},
+  matchDevB115:{title:'連結裝置配對（二）',left:'裝置',right:'功能',pairs:[
+    ['橋接器','連接同一網路的不同區段，可過濾封包'],['路由器','替資料傳輸選擇最佳路徑'],['閘道器','連接使用不同通訊協定的網路'],['IP 分享器','讓區域網路中多台電腦共用同一個 IP 上網'],['無線基地臺（AP）','以無線方式連接多部電腦設備']]},
+  matchProto115:{title:'通訊協定配對',left:'通訊協定',right:'網路服務與範例',pairs:[
+    ['http','全球資訊網｜http://www.edu.tw'],['ftp','檔案傳輸｜ftp://ftp.ntu.edu.tw'],['mailto','電子郵件｜mailto:abc@mail.com.tw'],['telnet','遠端登入｜telnet://bbs.nsysu.edu.tw'],['file','檔案伺服器｜file://share/software/']]},
+  matchCat115:{title:'機構類別與地理名稱配對',left:'代碼',right:'意義',pairs:[
+    ['.mil','軍事機關'],['.gov','政府機關'],['.com','公司行號'],['.net','網路機構'],['.edu','教育機構'],['.org','非營利組織'],['.jp','日本'],['.kr','韓國']]},
+  matchSvc115:{title:'網路服務分類',left:'生活情境',right:'服務類型',multi:true,pairs:[
+    ['在均一教育平臺看數學影片','教育內容服務'],['用網路預約醫院門診','日常生活網路服務'],['師大學生登入學校的選課系統','校園網路服務'],['在 YouTube 觀看並留言','影音分享服務'],['在 Instagram 發布照片','社群交流服務'],['和同學用 Google 文件共編報告','雲端作業服務'],['用外送平臺訂晚餐','日常生活網路服務'],['在因材網做練習題','教育內容服務']]}
+};
+const SEQ = {
+  timeline114:{title:'網路發展時間軸',items:[
+    ['1969','ARPANET','美國國防部架設，部分設備被破壞仍能聯繫'],
+    ['1974','TCP/IP','瑟夫與卡恩提出，讓不同系統能互連'],
+    ['1983','網域名稱服務','莫卡派喬斯提出，用好記的名稱連網站'],
+    ['1989–1990','全球資訊網與瀏覽器','柏納．李發明並免費開放'],
+    ['1990','臺灣學術網路 TANet','臺灣第一個網際網路系統']]},
+  seqSwitch115:{title:'封包交換三步驟',items:[
+    ['傳輸前','分割並編號','把資料分割成特定大小的封包，依序編號'],
+    ['傳輸時','節點選擇路徑','網路節點依封包指定的位址決定傳輸路徑'],
+    ['傳輸完成','排序並重組','接收端把封包依序排列，重組成原始資料']]}
+};
+const SCEN = {
+  t114:{opts:['藍牙','Wi-Fi','行動網路'],items:[
+    ['用無線耳機聽手機裡的音樂','藍牙','短距離連接個人設備，是藍牙的典型用途。'],
+    ['在家裡用筆電連上家中的無線網路寫作業','Wi-Fi','同一區域內不用網路線上網，是無線區域網路 Wi-Fi。'],
+    ['在公車上用手機查詢下一站到站時間','行動網路','移動中透過基地臺上網，用行動網路。'],
+    ['智慧手錶把今天的運動紀錄傳到手機','藍牙','課本舉例：手錶資料藉由藍牙傳送到手機。'],
+    ['電腦教室的平板同時連上學校的無線網路','Wi-Fi','同區域多台設備同時上網，使用 Wi-Fi。'],
+    ['在戶外的跨年晚會現場用手機視訊','行動網路','戶外沒有 Wi-Fi 時，手機透過基地臺使用行動網路。'],
+    ['用手機啟動電動機車並查看電池電量','藍牙','課本舉例：藍牙與手機連接，就能啟動機車、監測電量。']]},
+  t115:{opts:['低軌衛星','行動網路','Wi-Fi','個人熱點','藍牙','RFID','NFC'],items:[
+    ['在沒有基地臺的遠洋船上和陸地通訊','低軌衛星','低軌衛星傳輸距離約 2000 公里，主要功能是通訊。'],
+    ['走在路上用手機看影片','行動網路','手機透過 4G／5G 行動網路上網。'],
+    ['在家用筆電連上無線基地臺','Wi-Fi','無線基地臺接實體網路線、發送無線電波。'],
+    ['咖啡廳寬頻斷線，用手機分享網路給同學的筆電','個人熱點','熱點利用行動數據分享網路。'],
+    ['用藍牙耳機接聽手機來電','藍牙','與行動裝置在短距離（約 30 公尺）交換資料。'],
+    ['圖書館用讀取器辨識每本書上的標籤','RFID','RFID 用無線電訊號識別特定對象，距離約 10 公尺。'],
+    ['手機靠近讀卡機「嗶」一下完成付款','NFC','NFC 距離約 4 公分，以電磁感應短距離傳資料。']]}
+};
+// ===== 工具 =====
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || (v === false && !k.startsWith('aria-'))) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? (k.startsWith('aria-') ? 'true' : '') : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(c));
+  return el;
+}
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const LET = 'ABCDEFG';
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+const ICON = {
+  cloud:'<path d="M17 18H7a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.5a3.75 3.75 0 0 1 0 9.5z"/>',
+  modem:'<rect x="3" y="9" width="18" height="8" rx="2"/><circle cx="7" cy="13" r=".9" fill="currentColor"/><circle cx="10" cy="13" r=".9" fill="currentColor"/><path d="M14 13h4M8 9V6M16 9V6"/>',
+  router:'<rect x="3" y="12" width="18" height="6" rx="2"/><path d="M7 12V5M17 12V5"/><circle cx="7" cy="15" r=".9" fill="currentColor"/><path d="M11 15h6"/>',
+  switch:'<rect x="2" y="8" width="20" height="9" rx="2"/><path d="M5 13h2M9 13h2M13 13h2M17 13h2"/>',
+  ap:'<path d="M5 17h14l-2-5H7z"/><path d="M8.5 8.5a5 5 0 0 1 7 0M6 6a8.5 8.5 0 0 1 12 0"/>',
+  pc:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/>',
+  laptop:'<rect x="5" y="5" width="14" height="10" rx="1"/><path d="M2 19h20l-2-4H4z"/>',
+  phone:'<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>',
+  server:'<rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><path d="M8 6.5h.01M8 17.5h.01"/>',
+  buds:'<path d="M8 4a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3V4zM16 4a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3V4z"/><path d="M8 12v6M16 12v6"/>',
+  printer:'<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>',
+  repeater:'<rect x="5" y="10" width="14" height="8" rx="2"/><path d="M2 14h3M19 14h3M9 14h6"/><path d="M12 10V6"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  sensor:'<circle cx="12" cy="12" r="3"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9M16.5 7.5a6.5 6.5 0 0 1 0 9M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>'
+};
+const icon = (n, s = 28) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n] || ''}</svg>`;
+const iconEl = (n, s) => h('span', { html: icon(n, s), style: { display: 'inline-flex' } });
+
+// ===== 形成性評量（一題一題、即時回饋）=====
+function quizFormative(el, qs, title, meta) {
+  el.innerHTML = '';
+  let order, i, res;
+  const start = () => { order = shuffle(qs.map((_, k) => k)); i = 0; res = []; draw(); };
+  const draw = () => {
+    el.innerHTML = '';
+    if (i >= order.length) return end();
+    const q = qs[order[i]];
+    const isTF = q[1] === TF;
+    const optIdx = isTF ? [0, 1] : shuffle(q[1].map((_, k) => k));
+    const prog = h('div', { class: 'qprog', 'aria-label': `第 ${i + 1} 題，共 ${order.length} 題` },
+      order.map((_, k) => h('i', { class: k < i ? (res[k] ? 'ok' : 'no') : k === i ? 'cur' : '' })));
+    const opts = h('div', { class: 'opts' });
+    const fb = h('div');
+    const next = h('button', { class: 'btn', hidden: true, onclick: () => { i++; draw(); } }, i === order.length - 1 ? '看成績' : '下一題 →');
+    optIdx.forEach((oi, k) => {
+      const b = h('button', { class: 'opt', onclick: () => {
+        const ok = oi === q[2]; res.push(ok);
+        $$('.opt', opts).forEach((x, kk) => { x.disabled = true; if (optIdx[kk] === q[2]) x.classList.add('ok'); });
+        if (!ok) b.classList.add('no');
+        fb.replaceChildren(h('div', { class: 'expl' + (ok ? '' : ' no') }, h('b', null, ok ? '答對了！' : '再想想，正確答案是「' + q[1][q[2]] + '」'), q[3]));
+        $$('i', prog)[i].className = ok ? 'ok' : 'no';
+        next.hidden = false; next.focus();
+      } }, h('span', { class: 'lt' }, isTF ? (k ? '✕' : '○') : LET[k]), q[1][oi]);
+      opts.append(b);
+    });
+    el.append(h('div', { class: 'qcard' },
+      h('div', { class: 'btnrow', style: { justifyContent: 'space-between' } }, prog, h('span', { class: 'chip' }, `${i + 1} / ${order.length}`)),
+      h('div', { class: 'qtext' }, q[0]), opts, fb, h('div', { class: 'btnrow' }, next)));
+  };
+  const end = () => {
+    const c = res.filter(Boolean).length;
+    const wrong = order.filter((_, k) => !res[k]).map(k => qs[k]);
+    el.append(h('div', { class: 'qcard' },
+      h('div', { class: 'eyebrow' }, title + '｜小測驗結果'),
+      h('div', { class: 'score' }, h('span', { class: 'n' }, `${c}/${order.length}`), h('span', null, c === order.length ? '全對！觀念很清楚。' : c >= order.length * 0.7 ? '不錯，看看錯的題目。' : '建議再複習一次重點。')),
+      wrong.length ? h('div', { class: 'stack', style: { gap: '8px' } }, h('b', null, '需要再看一次的觀念'), ...wrong.map(q => h('div', { class: 'expl no' }, h('b', null, q[0]), '答案：' + q[1][q[2]] + '。' + q[3]))) : null,
+      h('div', { class: 'btnrow' }, h('button', { class: 'btn', onclick: start }, '再做一次（題目重新排序）')),
+      meta ? scoreSendBox({ v: meta.v, type: '小測驗', unit: meta.unit, score: Math.round(c / order.length * 100), correct: c, total: order.length, detail: meta.unit + ' ' + c + '/' + order.length, wrong: wrong.map(q => q[0].slice(0, 18)).join('｜') }) : null));
+  };
+  start();
+}
+
+// ===== 總結性評量 =====
+function examView(el, T) {
+  const cfg = { cls: '', no: '', name: '', n: 20, units: T.units.map(u => u.id) };
+  const setup = () => {
+    el.innerHTML = '';
+    const total = () => T.units.filter(u => cfg.units.includes(u.id)).reduce((s, u) => s + u.quiz.length, 0);
+    const nSel = h('select', { id: 'ex-n' });
+    const fillN = () => { const t = total(); nSel.innerHTML = ''; [10, 15, 20, 30].filter(x => x < t).concat([t]).forEach(x => nSel.append(h('option', { value: x, selected: x === Math.min(cfg.n, t) }, x === t ? `全部 ${t} 題` : `${x} 題`))); cfg.n = +nSel.value; };
+    nSel.onchange = () => cfg.n = +nSel.value;
+    const unitBox = h('div', { class: 'grid3', style: { gap: '6px' } }, T.units.map(u => h('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', fontSize: '.92rem' } },
+      h('input', { type: 'checkbox', id: 'ex-u-' + u.id, checked: cfg.units.includes(u.id), onchange: e => { cfg.units = e.target.checked ? [...cfg.units, u.id] : cfg.units.filter(x => x !== u.id); go.disabled = !cfg.units.length; fillN(); } }),
+      h('span', { class: 'mono', style: { color: 'var(--muted)', fontSize: '.8rem' } }, u.code), u.title)));
+    const inp = (id, key, ph, w) => h('label', { class: 'fld' }, ph, h('input', { type: 'text', id, value: cfg[key], style: { width: w }, oninput: e => cfg[key] = e.target.value.trim() }));
+    const go = h('button', { class: 'btn sig', onclick: () => run() }, '開始作答');
+    fillN();
+    el.append(h('div', { class: 'panel stack' },
+      h('div', { class: 'h3' }, '作答設定'),
+      h('div', { class: 'ctrls', style: { marginBottom: 0 } }, inp('ex-cls', 'cls', '班級', '90px'), inp('ex-no', 'no', '座號', '70px'), inp('ex-name', 'name', '姓名', '140px'), h('label', { class: 'fld' }, '題數', nSel)),
+      h('div', null, h('div', { class: 'boxt' }, '出題範圍'), unitBox),
+      h('div', { class: 'note' }, '題目與選項每次隨機抽取、排列。學生交卷後會看到分數、各單元答對率與每題解析，可截圖上傳或請老師巡堂登記。'),
+      h('div', { class: 'btnrow' }, go)));
+  };
+  const run = () => {
+    const pools = T.units.filter(u => cfg.units.includes(u.id)).map(u => shuffle(u.quiz.map(q => ({ q, u }))));
+    const picked = []; let k = 0;
+    while (picked.length < cfg.n && pools.some(p => p.length)) { const p = pools[k % pools.length]; if (p.length) picked.push(p.pop()); k++; }
+    const items = shuffle(picked).map(it => ({ ...it, opt: it.q[1] === TF ? [0, 1] : shuffle(it.q[1].map((_, j) => j)), ans: null }));
+    el.innerHTML = '';
+    const cnt = h('span', { class: 'chip p' });
+    const upd = () => cnt.textContent = `已作答 ${items.filter(x => x.ans != null).length} / ${items.length}`;
+    const warn = h('span', { style: { color: 'var(--bad)', fontWeight: 700 } });
+    let armed = false;
+    const submit = h('button', { class: 'btn sig', onclick: () => {
+      const left = items.filter(x => x.ans == null).length;
+      if (left && !armed) { armed = true; warn.textContent = `還有 ${left} 題沒作答，確定要交卷請再按一次。`; return; }
+      result(items);
+    } }, '交卷');
+    const list = h('div', { class: 'stack' });
+    items.forEach((it, n) => {
+      const opts = h('div', { class: 'opts' });
+      it.opt.forEach((oi, j) => opts.append(h('button', { class: 'opt', onclick: e => { it.ans = oi; $$('.opt', opts).forEach(b => b.classList.remove('sel')); e.currentTarget.classList.add('sel'); armed = false; warn.textContent = ''; upd(); } },
+        h('span', { class: 'lt' }, it.q[1] === TF ? (j ? '✕' : '○') : LET[j]), it.q[1][oi])));
+      list.append(h('div', { class: 'exq' }, h('div', { class: 'qn' }, `第 ${n + 1} 題｜${it.u.code}`), h('div', { class: 'qtext' }, it.q[0]), opts));
+    });
+    upd();
+    el.append(h('div', { class: 'panel stack' },
+      h('div', { class: 'btnrow', style: { justifyContent: 'space-between' } }, h('b', null, [cfg.cls && cfg.cls + ' 班', cfg.no && cfg.no + ' 號', cfg.name].filter(Boolean).join('　') || '總結性評量'), cnt),
+      list, h('div', { class: 'btnrow' }, submit, warn)));
+    window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 90 });
+  };
+  const result = items => {
+    const ok = items.filter(x => x.ans === x.q[2]).length;
+    const score = Math.round(ok / items.length * 100);
+    const byU = T.units.filter(u => cfg.units.includes(u.id)).map(u => { const its = items.filter(x => x.u === u); return { u, n: its.length, c: its.filter(x => x.ans === x.q[2]).length }; }).filter(x => x.n);
+    el.innerHTML = '';
+    const now = new Date();
+    const review = h('div', { class: 'stack' });
+    let onlyWrong = true;
+    const drawReview = () => {
+      review.innerHTML = '';
+      items.forEach((it, n) => {
+        const good = it.ans === it.q[2];
+        if (onlyWrong && good) return;
+        review.append(h('div', { class: 'exq' }, h('div', { class: 'qn' }, `第 ${n + 1} 題｜${it.u.code} ${it.u.title}`), h('div', { class: 'qtext' }, it.q[0]),
+          h('div', { class: 'opts' }, it.opt.map((oi, j) => h('div', { class: 'opt' + (oi === it.q[2] ? ' ok' : oi === it.ans ? ' no' : '') }, h('span', { class: 'lt' }, it.q[1] === TF ? (j ? '✕' : '○') : LET[j]), it.q[1][oi], oi === it.ans ? h('span', { class: 'chip', style: { marginLeft: 'auto' } }, '你的答案') : null))),
+          h('div', { class: 'expl' + (good ? '' : ' no') }, h('b', null, good ? '答對' : it.ans == null ? '未作答' : '答錯'), it.q[3])));
+      });
+      if (!review.children.length) review.append(h('p', null, '全部答對，沒有錯題！'));
+    };
+    drawReview();
+    const tog = h('button', { class: 'btn ghost', onclick: () => { onlyWrong = !onlyWrong; tog.textContent = onlyWrong ? '顯示全部題目' : '只看錯題'; drawReview(); } }, '顯示全部題目');
+    el.append(h('div', { class: 'panel stack' },
+      h('div', { class: 'eyebrow' }, `${T.short}｜${T.name}｜總結性評量`),
+      h('div', { class: 'btnrow', style: { justifyContent: 'space-between', alignItems: 'flex-end' } },
+        h('div', null, h('div', { class: 'big' }, [cfg.cls && cfg.cls + ' 班', cfg.no && cfg.no + ' 號', cfg.name].filter(Boolean).join('　') || '（未填姓名）'),
+          h('div', { style: { color: 'var(--muted)', fontSize: '.85rem' } }, `交卷時間 ${now.toLocaleDateString('zh-TW')} ${now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`)),
+        h('div', { class: 'score' }, h('span', { class: 'n', style: { color: score >= 60 ? 'var(--ok)' : 'var(--bad)' } }, score), h('span', null, `分（答對 ${ok} / ${items.length} 題）`))),
+      h('div', null, h('div', { class: 'boxt' }, '各單元答對率'), h('div', { class: 'bars' }, byU.map(x => { const p = Math.round(x.c / x.n * 100); return h('div', { class: 'bar' }, h('span', null, x.u.code + ' ' + x.u.title), h('div', { class: 'tr' }, h('div', { class: 'fl' + (p < 60 ? ' lo' : ''), style: { width: p + '%' } })), h('span', { class: 'v' }, `${x.c}/${x.n}`)); }))),
+      h('div', { class: 'btnrow' }, h('button', { class: 'btn', onclick: run }, '重新出題'), h('button', { class: 'btn ghost', onclick: setup }, '回到設定'), tog),
+      scoreSendBox({ v: T.short, type: '總結性評量', unit: cfg.units.length === T.units.length ? '全章' : T.units.filter(u => cfg.units.includes(u.id)).map(u => u.code).join('、'), cls: cfg.cls, no: cfg.no, name: cfg.name, score, correct: ok, total: items.length,
+        detail: byU.map(x => `${x.u.code} ${x.c}/${x.n}`).join('；'), wrong: items.map((it, n) => it.ans === it.q[2] ? null : `第${n + 1}題(${it.u.code})${it.q[0].slice(0, 14)}`).filter(Boolean).join('｜') })),
+      h('div', { class: 'panel', style: { marginTop: '16px' } }, h('div', { class: 'h3' }, '題目檢討'), review));
+    window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 90 });
+  };
+  setup();
+}
+
+// ===== 配對遊戲 =====
+function matchGame(el, cfg) {
+  const draw = () => {
+    el.innerHTML = '';
+    const L = shuffle(cfg.pairs.map((p, i) => ({ t: p[0], a: p[1], i })));
+    const Rvals = cfg.multi ? shuffle([...new Set(cfg.pairs.map(p => p[1]))]) : shuffle(cfg.pairs.map(p => p[1]));
+    let sel = null, tries = 0, done = 0;
+    const st = h('div', { class: 'status' }, '先點左邊的項目，再點右邊對應的說明。');
+    const lc = h('div', { class: 'col' }, h('div', { class: 'colhd' }, cfg.left));
+    const rc = h('div', { class: 'col' }, h('div', { class: 'colhd' }, cfg.right));
+    const Lb = L.map(it => { const b = h('button', { class: 'mi l', onclick: () => { if (b.classList.contains('done')) return; $$('.mi.l', lc).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = it; } }, it.t); b._it = it; lc.append(b); return b; });
+    Rvals.forEach(v => {
+      const b = h('button', { class: 'mi', onclick: () => {
+        if (!sel || b.classList.contains('done')) return;
+        tries++;
+        const lb = Lb.find(x => x._it === sel);
+        if (sel.a === v) {
+          done++; lb.classList.remove('sel'); lb.classList.add('done');
+          if (cfg.multi) { lb.append(h('div', { style: { fontWeight: 400, fontSize: '.82rem', color: 'var(--ok)' } }, '→ ' + v)); }
+          else { b.classList.add('done'); b.prepend(h('span', { class: 'pn' }, '✓ ' + sel.t)); }
+          sel = null;
+          if (done === L.length) { st.className = 'status ok'; st.textContent = `完成！共嘗試 ${tries} 次${tries === L.length ? '，全部一次就對！' : '。'}`; }
+          else st.textContent = `已配對 ${done} / ${L.length}`;
+        } else { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); st.textContent = `「${sel.t}」不是這個，再試試。`; }
+      } }, v);
+      rc.append(b);
+    });
+    el.append(h('div', { class: 'match' }, lc, rc), st, h('div', { class: 'btnrow', style: { marginTop: '10px' } }, h('button', { class: 'btn ghost', onclick: draw }, '重新洗牌')));
+  };
+  draw();
+}
+
+// ===== 排序遊戲 =====
+function seqGame(el, cfg) {
+  const draw = () => {
+    el.innerHTML = '';
+    let pool = shuffle(cfg.items.map((it, i) => ({ it, i }))), ans = [];
+    const pe = h('div', { class: 'seqpool' }), ae = h('div', { class: 'seqans' });
+    const st = h('div', { class: 'status' }, '依照先後順序，點選下方卡片放進答案區；點答案區的卡片可以退回。');
+    const chk = h('button', { class: 'btn', disabled: true, onclick: () => {
+      let c = 0;
+      $$('.seqit', ae).forEach((b, k) => { const ok = ans[k].i === k; if (ok) c++; b.className = 'seqit ' + (ok ? 'ok' : 'no'); b.prepend(h('span', { class: 'y' }, ans[k].it[0])); b.disabled = true; });
+      st.className = 'status' + (c === ans.length ? ' ok' : '');
+      st.textContent = c === ans.length ? '順序完全正確！' : `對了 ${c} 個，紅色的位置不對。正確順序：` + cfg.items.map(x => `${x[0]} ${x[1]}`).join(' → ');
+      chk.disabled = true;
+    } }, '檢查順序');
+    const ren = () => {
+      pe.innerHTML = ''; ae.innerHTML = '';
+      pool.forEach(o => pe.append(h('button', { class: 'seqit', onclick: () => { pool = pool.filter(x => x !== o); ans.push(o); ren(); } }, h('b', null, o.it[1]), h('div', { style: { fontSize: '.85rem', color: 'var(--muted)' } }, o.it[2]))));
+      ans.forEach((o, k) => ae.append(h('button', { class: 'seqit', onclick: () => { ans = ans.filter(x => x !== o); pool.push(o); ren(); } }, h('span', { class: 'mono', style: { color: 'var(--muted)', marginRight: '8px' } }, k + 1 + '.'), h('b', null, o.it[1]), h('span', { style: { fontSize: '.85rem', color: 'var(--muted)', marginLeft: '8px' } }, o.it[2]))));
+      if (!ans.length) ae.append(h('span', { style: { color: 'var(--muted)', fontSize: '.9rem' } }, '答案區（第 1 個放最早／最先發生的）'));
+      chk.disabled = pool.length > 0;
+    };
+    ren();
+    el.append(h('div', { class: 'stack', style: { gap: '10px' } }, h('div', { class: 'boxt' }, '卡片'), pe, h('div', { class: 'boxt' }, '你的順序'), ae), st,
+      h('div', { class: 'btnrow', style: { marginTop: '10px' } }, chk, h('button', { class: 'btn ghost', onclick: draw }, '重來')));
+  };
+  draw();
+}
+// ===== 互動模擬 =====
+const SVGNS = 'http://www.w3.org/2000/svg';
+const sv = (tag, attrs, parent) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.append(e); return e; };
+function tween(dur, fn, done) { const t0 = performance.now(); const f = now => { const t = Math.min(1, (now - t0) / dur); fn(t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); if (t < 1) requestAnimationFrame(f); else done && done(); }; requestAnimationFrame(f); }
+
+// ---------- 家用網路接線 ----------
+function simHomenet(el, T) {
+  const DEV = {
+    modem: { n: '數據機', i: 'modem', f: '轉換線路上的類比訊號與電腦可識別的數位訊號' },
+    router: { n: '路由器', i: 'router', f: T.key === 't115' ? '替資料傳輸選擇最佳路徑' : '安排資料傳送路徑；WAN 接外部、LAN 接內部' },
+    switch: { n: T.key === 't115' ? '交換器' : '網路交換器', i: 'switch', f: T.key === 't115' ? '連接區域網路多部電腦，同時讓多對連接埠交換訊息' : 'LAN 接孔不夠時，擴大區域網路' },
+    ap: { n: '無線基地臺', i: 'ap', f: '以無線方式連接筆電、手機等設備' },
+    repeater: { n: '中繼器', i: 'repeater', f: '增強訊號，彌補傳輸距離限制' },
+    buds: { n: '藍牙耳機', i: 'buds', f: '個人裝置，不是網路連結設備' },
+    printer: { n: '印表機', i: 'printer', f: '周邊設備，不是網路連結設備' }
+  };
+  const SLOTS = [{ k: 'modem', cap: '把 ISP 傳來的訊號轉成數位訊號' }, { k: 'router', cap: '有 1 個 WAN 孔、數個 LAN 孔' }, { k: 'switch', cap: '電腦太多、LAN 孔不夠用' }, { k: 'ap', cap: '讓筆電、手機不用網路線也能上網' }];
+  const palette = ['modem', 'router', 'switch', 'ap', T.key === 't115' ? 'repeater' : 'buds', 'printer'];
+  let place = [null, null, null, null], selSlot = 0, selDev = null, hint = false;
+  const draw = () => {
+    el.innerHTML = '';
+    const slotEl = i => {
+      const d = place[i] && DEV[place[i]];
+      return h('button', { class: 'slot' + (selSlot === i ? ' sel' : ''), 'data-i': i, 'aria-label': '位置 ' + (i + 1), onclick: () => {
+        if (selDev) { place = place.map(x => x === selDev ? null : x); place[i] = selDev; selDev = null; selSlot = place.indexOf(null); }
+        else selSlot = i;
+        draw();
+      } }, d ? [iconEl(d.i, 34), h('b', null, d.n)] : h('span', { class: 'ph' }, '點這裡，再選設備'), h('span', { class: 'cap' }, SLOTS[i].cap));
+    };
+    const fixed = (ic, t, cap) => h('div', { class: 'node' }, h('div', { class: 'slot', style: { borderStyle: 'solid', background: 'var(--sunk)' } }, iconEl(ic, 34), h('b', null, t), h('span', { class: 'cap' }, cap)));
+    const link = () => h('div', { class: 'link' }, h('div', { class: 'conn' }));
+    const row1 = h('div', { class: 'hn hn2' }, fixed('cloud', '網際網路', T.key === 't115' ? '網路業者（ISP）' : 'ISP（如中華電信）'), link(), h('div', { class: 'node' }, slotEl(0)), link(), h('div', { class: 'node' }, slotEl(1)), link(), h('div', { class: 'node' }, slotEl(2)), link(), fixed('pc', '電腦 × 3', '電腦教室的桌機'));
+    const row2 = h('div', { class: 'hn hn2 hnrow2' }, h('div'), h('div'), h('div'), h('div'), h('div', { class: 'node' }, h('div', { class: 'vlink' }), slotEl(3)), h('div', { class: 'link' }, h('div', { class: 'conn wl' })), fixed('laptop', '筆電、手機', '無線連線'), h('div'), h('div'));
+    const pal = h('div', { class: 'pal' }, palette.map(k => h('button', { class: 'dev' + (selDev === k ? ' sel' : '') + (place.includes(k) ? ' used' : ''), onclick: () => {
+      if (selSlot != null && selSlot >= 0 && !selDev) { place = place.map(x => x === k ? null : x); place[selSlot] = k; const nx = place.indexOf(null); selSlot = nx; }
+      else selDev = selDev === k ? null : k;
+      draw();
+    } }, iconEl(DEV[k].i, 26), h('span', null, DEV[k].n, hint ? h('div', { style: { fontWeight: 400, fontSize: '.78rem', color: 'var(--muted)', maxWidth: '220px' } }, DEV[k].f) : null))));
+    const out = h('div', { class: 'status' });
+    const chk = h('button', { class: 'btn', disabled: place.includes(null), onclick: () => {
+      let c = 0;
+      $$('.slot[data-i]', el).forEach(s => { const i = +s.dataset.i; const ok = place[i] === SLOTS[i].k; if (ok) c++; s.classList.add(ok ? 'ok' : 'no'); });
+      if (c === 4) {
+        $$('.conn', el).forEach(x => x.classList.add('flowing'));
+        out.className = 'status ok';
+        out.replaceChildren('全部正確！訊號流動路徑：', h('ul', { class: 'pts', style: { color: 'var(--ink)', fontWeight: 400 } },
+          h('li', null, '網際網路 → 數據機：', DEV.modem.f),
+          h('li', null, '數據機 → 路由器 WAN 孔：', DEV.router.f),
+          h('li', null, '路由器 LAN 孔 → ', DEV.switch.n, '：', DEV.switch.f),
+          h('li', null, '路由器 → 無線基地臺：', DEV.ap.f)));
+      } else { out.className = 'status'; out.textContent = `對了 ${c} 個，紅框的位置再想想。可以打開「顯示功能提示」幫忙判斷。`; }
+    } }, '檢查接線');
+    el.append(h('div', { class: 'hnwrap' }, row1, row2), pal,
+      h('div', { class: 'btnrow', style: { marginTop: '14px' } }, chk,
+        h('button', { class: 'btn ghost', onclick: () => { hint = !hint; draw(); } }, hint ? '隱藏功能提示' : '顯示功能提示'),
+        h('button', { class: 'btn ghost', onclick: () => { place = [null, null, null, null]; selSlot = 0; selDev = null; draw(); } }, '清空重來')), out);
+  };
+  draw();
+}
+
+// ---------- 封包傳送模擬 ----------
+function simPacket(el, T) {
+  const allowUDP = T.key === 't115';
+  const P = { S: [60, 165], N1: [215, 80], N2: [215, 250], N3: [410, 50], N4: [410, 165], N5: [410, 280], N6: [600, 80], N7: [600, 250], R: [760, 165] };
+  const E = [['S','N1'],['S','N2'],['N1','N3'],['N1','N4'],['N2','N4'],['N2','N5'],['N3','N6'],['N4','N6'],['N4','N7'],['N5','N7'],['N6','R'],['N7','R']];
+  const ROUTES = [['S','N1','N3','N6','R'],['S','N1','N4','N6','R'],['S','N1','N4','N7','R'],['S','N2','N4','N6','R'],['S','N2','N4','N7','R'],['S','N2','N5','N7','R']];
+  const SRC = '163.21.236.8', DST = '140.112.53.15';
+  let st = { proto: 'TCP', msg: T.key === 't115' ? '封包交換好神奇' : '生日快樂歌開唱', size: 1, loss: 0, spd: 1 };
+  let run = null;
+  const controls = h('div', { class: 'ctrls' });
+  const msgIn = h('input', { type: 'text', id: 'pk-msg', value: st.msg, maxlength: 14, style: { width: '190px' } });
+  const sizeSel = h('select', { id: 'pk-size' }, [1, 2, 3].map(n => h('option', { value: n }, `每個封包 ${n} 字`)));
+  const lossIn = h('input', { type: 'range', id: 'pk-loss', min: 0, max: 50, step: 5, value: 0 });
+  const lossLb = h('span', { class: 'mono' }, '0%');
+  const spdSel = h('select', { id: 'pk-spd' }, [['0.6', '慢速（講解用）'], ['1', '一般'], ['1.8', '快速']].map(([v, t]) => h('option', { value: v, selected: v === '1' }, t)));
+  const protoSeg = h('div', { class: 'seg' }, ['TCP', 'UDP'].map(p => h('button', { 'aria-pressed': p === st.proto, onclick: e => { st.proto = p; $$('button', protoSeg).forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); hdr(); } }, p)));
+  lossIn.oninput = () => { lossLb.textContent = lossIn.value + '%'; };
+  controls.append(h('label', { class: 'fld' }, '要傳送的訊息', msgIn), h('label', { class: 'fld' }, '封包大小', sizeSel),
+    allowUDP ? h('label', { class: 'fld' }, '通訊協定', protoSeg) : null,
+    h('label', { class: 'fld' }, h('span', null, '遺失機率 ', lossLb), lossIn), h('label', { class: 'fld' }, '速度', spdSel));
+  const startB = h('button', { class: 'btn sig', onclick: () => start() }, '▶ 開始傳送');
+  const resetB = h('button', { class: 'btn ghost', onclick: () => reset() }, '重設');
+  const hdrBox = h('div', { class: 'hdr' });
+  const hdr = () => { hdrBox.innerHTML = ''; hdrBox.append(h('span', { class: 'c1' }, '來源 ' + SRC), h('span', { class: 'c1' }, '目的 ' + DST), h('span', { class: 'c2' }, '編號 #3'), h('span', { class: 'c3' }, '資料「' + (msgIn.value[2] || '樂') + '」')); };
+  hdr();
+  const svg = sv('svg', { viewBox: '0 0 820 330', role: 'img', 'aria-label': '封包經過網路節點從傳送端到接收端' });
+  E.forEach(([a, b]) => sv('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], style: 'stroke:var(--line);stroke-width:3' }, svg));
+  Object.entries(P).forEach(([k, [x, y]]) => {
+    if (k === 'S' || k === 'R') { sv('rect', { x: x - 46, y: y - 34, width: 92, height: 68, rx: 10, style: 'fill:var(--surface);stroke:var(--primary);stroke-width:2' }, svg); const t = sv('text', { x, y: y - 6, 'text-anchor': 'middle', class: 'svgtext', 'font-size': 15, 'font-weight': 700 }, svg); t.textContent = k === 'S' ? '傳送端' : '接收端'; const t2 = sv('text', { x, y: y + 14, 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 10.5, 'font-family': 'monospace' }, svg); t2.textContent = k === 'S' ? SRC : DST; }
+    else { sv('circle', { cx: x, cy: y, r: 17, style: 'fill:var(--surface);stroke:var(--muted);stroke-width:2' }, svg); const t = sv('text', { x, y: y + 4, 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 11 }, svg); t.textContent = '節點' + k.slice(1); }
+  });
+  const layer = sv('g', {}, svg);
+  const sendBox = h('div', { class: 'lg' }), recvBox = h('div', { class: 'lg' }), finalBox = h('div', { style: { marginTop: '8px' } });
+  const logBox = h('div', { class: 'log', 'aria-live': 'polite' });
+  const statBox = h('span', { class: 'chip' }, '尚未開始');
+  const log = t => { logBox.prepend(h('div', null, t)); while (logBox.children.length > 40) logBox.lastChild.remove(); };
+  const pts = route => route.map(k => P[k]);
+  const lenOf = ps => ps.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - ps[i][0], p[1] - ps[i][1]), 0);
+  const posAt = (ps, d) => { for (let i = 1; i < ps.length; i++) { const L = Math.hypot(ps[i][0] - ps[i - 1][0], ps[i][1] - ps[i - 1][1]); if (d <= L) { const t = d / L; return [ps[i - 1][0] + (ps[i][0] - ps[i - 1][0]) * t, ps[i - 1][1] + (ps[i][1] - ps[i - 1][1]) * t]; } d -= L; } return ps[ps.length - 1]; };
+  const BASE = 240;
+
+  function reset() {
+    if (run) run.stop = true; run = null;
+    layer.innerHTML = ''; sendBox.innerHTML = ''; recvBox.innerHTML = ''; finalBox.innerHTML = ''; logBox.innerHTML = '';
+    statBox.textContent = '尚未開始'; startB.disabled = false;
+    [msgIn, sizeSel, lossIn, spdSel].forEach(x => x.disabled = false); $$('button', protoSeg).forEach(b => b.disabled = false);
+  }
+  function start() {
+    reset();
+    const msg = (msgIn.value.trim() || '網路') .slice(0, 14);
+    const size = +sizeSel.value, loss = +lossIn.value / 100, spd = +spdSel.value, proto = allowUDP ? st.proto : 'TCP';
+    const chunks = []; for (let i = 0; i < msg.length; i += size) chunks.push(msg.slice(i, i + size));
+    const n = chunks.length;
+    startB.disabled = true; [msgIn, sizeSel, lossIn, spdSel].forEach(x => x.disabled = true); $$('button', protoSeg).forEach(b => b.disabled = true);
+    const R = run = { stop: false, flying: [], sent: 0, retx: 0, t0: performance.now(), got: new Map(), arrivals: [], acked: new Set(), timers: {}, nextSend: 0, done: false };
+    const timeout = (760 / (BASE * spd * .65) + 760 / (BASE * spd * 1.3)) * 1250;
+    const sChips = chunks.map((c, i) => { const s = h('span', { class: 'pk wait', title: '待傳送' }, `#${i + 1} ${c}`); sendBox.append(s); return s; });
+    log(`切割完成：「${msg}」分成 ${n} 個封包，依序編號 #1～#${n}。`);
+    log(`使用 ${proto}${proto === 'TCP' ? '：接收端每收到一個封包就回傳確認（ACK），逾時未確認就重送。' : '：送出後不確認、不重傳。'}`);
+    const launch = (seq, kind, re) => {
+      const route = pick(ROUTES); const ps = kind === 'ack' ? pts([...route].reverse()) : pts(route);
+      const g = sv('g', { style: 'cursor:pointer' }, layer);
+      const w = kind === 'ack' ? 50 : 30 + chunks[seq].length * 13;
+      sv('rect', { x: -w / 2, y: -12, width: w, height: 24, rx: 5, style: kind === 'ack' ? 'fill:var(--ok)' : re ? 'fill:var(--signal)' : 'fill:var(--primary)' }, g);
+      const tx = sv('text', { x: 0, y: 4.5, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, style: 'fill:#fff;font-family:var(--f-body)' }, g);
+      tx.textContent = kind === 'ack' ? `ACK#${seq + 1}` : `#${seq + 1} ${chunks[seq]}`;
+      const p = { seq, kind, ps, L: lenOf(ps), d: 0, v: BASE * spd * (kind === 'ack' ? 1.3 : .65 + Math.random() * .7), g, lostAt: kind === 'data' && Math.random() < loss ? (.3 + Math.random() * .4) : null };
+      if (p.lostAt) p.lostAt *= p.L;
+      if (kind === 'data') g.addEventListener('pointerdown', () => { if (!p.gone) { p.lostAt = p.d; } });
+      R.flying.push(p);
+      if (kind === 'data') { R.sent++; if (re) R.retx++; sChips[seq].className = 'pk ' + (re ? 're' : ''); sChips[seq].title = re ? '重新傳送' : '已送出'; R.timers[seq] = performance.now() + timeout; }
+    };
+    const lostFx = (x, y) => { const g = sv('g', { transform: `translate(${x},${y})` }, layer); sv('path', { d: 'M-9,-9L9,9M9,-9L-9,9', style: 'stroke:var(--bad);stroke-width:4;stroke-linecap:round' }, g); setTimeout(() => g.remove(), 900); };
+    let last = performance.now();
+    const frame = now => {
+      if (R.stop || !el.isConnected) return;
+      const dt = (now - last) / 1000; last = now;
+      if (R.nextSend < n && now - R.t0 > R.nextSend * 520 / spd) { launch(R.nextSend, 'data', false); log(`送出封包 #${R.nextSend + 1}（${SRC} → ${DST}）`); R.nextSend++; }
+      for (const p of R.flying) {
+        if (p.gone) continue;
+        p.d += p.v * dt;
+        if (p.lostAt != null && p.d >= p.lostAt) { const [x, y] = posAt(p.ps, p.d); lostFx(x, y); p.gone = true; p.g.remove(); log(`✕ 封包 #${p.seq + 1} 在途中遺失！`); continue; }
+        if (p.d >= p.L) {
+          p.gone = true; p.g.remove();
+          if (p.kind === 'ack') { if (!R.acked.has(p.seq)) { R.acked.add(p.seq); sChips[p.seq].className = 'pk ok'; sChips[p.seq].title = '已確認'; log(`傳送端收到 ACK#${p.seq + 1}，確認封包已送達。`); } }
+          else {
+            if (R.got.has(p.seq)) log(`接收端收到重複的 #${p.seq + 1}，丟棄並再回傳確認。`);
+            else { R.got.set(p.seq, chunks[p.seq]); R.arrivals.push(p.seq); recvBox.append(h('span', { class: 'pk' }, `#${p.seq + 1} ${chunks[p.seq]}`)); log(`接收端收到 #${p.seq + 1}（第 ${R.arrivals.length} 個抵達）`); }
+            if (proto === 'TCP') launch(p.seq, 'ack', false);
+          }
+        } else { const [x, y] = posAt(p.ps, p.d); p.g.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`); }
+      }
+      R.flying = R.flying.filter(p => !p.gone);
+      if (proto === 'TCP') for (let s = 0; s < R.nextSend; s++) if (!R.acked.has(s) && R.timers[s] && now > R.timers[s]) { log(`⏱ #${s + 1} 逾時沒收到確認，重新傳送。`); launch(s, 'data', true); }
+      const secs = ((now - R.t0) / 1000).toFixed(1);
+      statBox.textContent = `經過 ${secs} 秒｜送出 ${R.sent} 次（重送 ${R.retx}）｜收到 ${R.got.size}/${n}`;
+      const finished = proto === 'TCP' ? R.acked.size === n : (R.nextSend === n && R.flying.length === 0);
+      if (finished && !R.done) { R.done = true; finish(secs); return; }
+      requestAnimationFrame(frame);
+    };
+    const finish = secs => {
+      const inOrder = R.arrivals.every((s, i) => i === 0 || s > R.arrivals[i - 1]);
+      const missing = chunks.map((_, i) => i).filter(i => !R.got.has(i));
+      const rebuilt = chunks.map((c, i) => R.got.has(i) ? c : '▢'.repeat(c.length)).join('');
+      finalBox.replaceChildren(
+        h('div', { class: 'boxt', style: { marginTop: '6px' } }, '依編號排序後重組'),
+        h('div', { class: 'lg' }, chunks.map((c, i) => h('span', { class: 'pk ' + (R.got.has(i) ? 'ok' : 'bad') }, `#${i + 1} ${R.got.has(i) ? c : '遺失'}`))),
+        h('div', { class: 'big', style: { marginTop: '8px', letterSpacing: '.08em' } }, rebuilt),
+        h('p', { style: { marginTop: '6px', fontSize: '.92rem' } }, inOrder ? '這次封包剛好依序抵達。' : '封包抵達順序和送出順序不同，靠編號重新排好。',
+          proto === 'TCP' ? ` 共重送 ${R.retx} 次，資料完整送達，花了 ${secs} 秒。` : missing.length ? ` UDP 不重傳，遺失 ${missing.length} 個封包，資料不完整，但花費時間較短（${secs} 秒）。` : ` 沒有封包遺失，花了 ${secs} 秒。`));
+      log(proto === 'TCP' ? '✓ 全部封包都已確認，傳送完成。' : '傳送結束（UDP 不確認是否送達）。');
+      startB.disabled = false; startB.textContent = '▶ 再傳一次';
+      [msgIn, sizeSel, lossIn, spdSel].forEach(x => x.disabled = false); $$('button', protoSeg).forEach(b => b.disabled = false);
+    };
+    requestAnimationFrame(frame);
+  }
+  el.append(controls,
+    h('div', { class: 'btnrow', style: { marginBottom: '10px', justifyContent: 'space-between' } }, h('div', { class: 'btnrow' }, startB, resetB), statBox),
+    h('div', { class: 'simbox' }, svg),
+    h('div', { class: 'btnrow', style: { marginTop: '8px', fontSize: '.85rem', color: 'var(--muted)' } }, '每個封包都帶有：', hdrBox, '　小技巧：點一下飛行中的藍色封包，它就會「遺失」。'),
+    h('div', { class: 'side2' }, h('div', null, h('div', { class: 'boxt' }, '傳送端：封包狀態'), sendBox, h('div', { class: 'lg', style: { fontSize: '.75rem', color: 'var(--muted)' } }, h('span', { class: 'pk wait' }, '待傳'), h('span', { class: 'pk' }, '已送出'), h('span', { class: 'pk re' }, '重送中'), h('span', { class: 'pk ok' }, '已確認'))),
+      h('div', null, h('div', { class: 'boxt' }, '接收端：抵達順序'), recvBox, finalBox)),
+    h('div', { class: 'boxt', style: { marginTop: '12px' } }, '傳送紀錄（最新在上）'), logBox);
+}
+
+// ---------- IP 檢測器 ----------
+const PRIV = [[10, 0, 10, 255, '10.0.0.0 ～ 10.255.255.255'], [172, 16, 172, 31, '172.16.0.0 ～ 172.31.255.255'], [192, 168, 192, 168, '192.168.0.0 ～ 192.168.255.255']];
+function ipParse(s) {
+  const parts = s.trim().split('.');
+  if (parts.length !== 4) return { ok: false, why: `IPv4 要剛好 4 組數字，你輸入了 ${parts.length} 組。`, parts };
+  const nums = []; const bad = [];
+  parts.forEach((p, i) => { if (!/^\d{1,3}$/.test(p)) bad.push(i); else { const v = +p; if (v > 255) bad.push(i); nums.push(v); } });
+  if (bad.length) return { ok: false, why: '每組都必須是 0～255 的整數。', parts, bad };
+  const pr = PRIV.find(r => nums[0] === r[0] && nums[1] >= r[1] && nums[1] <= r[3]);
+  return { ok: true, nums, priv: pr ? pr[4] : null, parts };
+}
+function simIP(el, T) {
+  const showPriv = T.key === 't114';
+  const inp = h('input', { type: 'text', id: 'ip-in', value: '192.168.7.1', class: 'mono', style: { fontSize: '1.2rem', width: '240px' } });
+  const out = h('div');
+  const upd = () => {
+    const r = ipParse(inp.value); out.innerHTML = '';
+    const oct = h('div', { class: 'octs' });
+    r.parts.forEach((p, i) => { const good = r.ok || (r.bad && !r.bad.includes(i) && /^\d+$/.test(p)); const v = +p; oct.append(h('div', { class: 'oct' + (good ? '' : ' bad') }, h('span', { class: 'd' }, p || '?'), h('span', { class: 'b' }, good ? v.toString(2).padStart(8, '0') : '— 不合法 —'))); if (i < r.parts.length - 1) oct.append(h('span', { class: 'big' }, '.')); });
+    out.append(oct);
+    if (!r.ok) out.append(h('div', { class: 'verdict bad' }, '不合法：' + r.why));
+    else {
+      out.append(h('div', { style: { fontSize: '.88rem', color: 'var(--muted)', marginTop: '6px' } }, '4 組 × 8 位元 ＝ 32 位元'));
+      if (showPriv) out.append(h('div', { class: 'verdict ' + (r.priv ? 'pri' : 'pub') }, r.priv ? `私有網路位址（${r.priv}）` : '公有網路位址'), h('p', { style: { marginTop: '6px', fontSize: '.92rem' } }, r.priv ? '只能在區域網路內使用，要連上網際網路時，需透過轉址換成公有位址。' : '可以直接在網際網路上使用，由 ISP 分派。'));
+      else out.append(h('div', { class: 'verdict ok' }, '合法的 IPv4 位址'));
+    }
+  };
+  inp.oninput = upd; upd();
+  const presets = showPriv ? ['192.168.7.1', '10.13.83.11', '172.16.33.98', '172.32.1.5', '140.112.53.185', '192.168.1.256'] : ['10.13.83.11', '140.112.53.15', '163.21.236.8', '192.168.1.256', '10.13.83', '255.255.255.255'];
+  // 挑戰
+  const chal = h('div');
+  const gen = () => {
+    const t = rnd(0, 5);
+    if (t === 0) return `10.${rnd(0, 255)}.${rnd(0, 255)}.${rnd(1, 254)}`;
+    if (t === 1) return `172.${rnd(16, 31)}.${rnd(0, 255)}.${rnd(1, 254)}`;
+    if (t === 2) return `192.168.${rnd(0, 255)}.${rnd(1, 254)}`;
+    if (t === 3) return pick([`172.${pick([15, 32, 40])}.${rnd(0, 255)}.${rnd(1, 254)}`, `192.${pick([167, 169])}.${rnd(0, 255)}.${rnd(1, 254)}`, `${pick([11, 140, 163, 120, 8])}.${rnd(0, 255)}.${rnd(0, 255)}.${rnd(1, 254)}`]);
+    if (t === 4) return pick([`${rnd(1, 223)}.${rnd(256, 300)}.${rnd(0, 255)}.${rnd(1, 254)}`, `${rnd(1, 223)}.${rnd(0, 255)}.${rnd(0, 255)}`, `192.168.${rnd(0, 255)}.${rnd(256, 999)}`]);
+    return `${pick([140, 163, 203, 61, 118])}.${rnd(0, 255)}.${rnd(0, 255)}.${rnd(1, 254)}`;
+  };
+  const startChal = () => {
+    let k = 0, score = 0; const N = 10;
+    const one = () => {
+      chal.innerHTML = '';
+      if (k >= N) { chal.append(h('div', { class: 'score' }, h('span', { class: 'n' }, `${score}/${N}`), h('span', null, '挑戰結束')), h('button', { class: 'btn', style: { marginTop: '10px' }, onclick: startChal }, '再挑戰一次')); return; }
+      const ip = gen(), r = ipParse(ip);
+      const ans = !r.ok ? '不合法' : showPriv ? (r.priv ? '私有' : '公有') : '合法';
+      const choices = showPriv ? ['公有', '私有', '不合法'] : ['合法', '不合法'];
+      const fb = h('div');
+      chal.append(h('div', { class: 'boxt' }, `第 ${k + 1} / ${N} 題　目前 ${score} 分`), h('div', { class: 'v6', style: { width: 'max-content', maxWidth: '100%' } }, ip),
+        h('div', { class: 'btnrow', style: { marginTop: '10px' } }, choices.map(c => h('button', { class: 'btn ghost', onclick: e => {
+          $$('button', e.currentTarget.parentNode).forEach(b => b.disabled = true);
+          const ok = c === ans; if (ok) score++;
+          fb.replaceChildren(h('div', { class: 'expl' + (ok ? '' : ' no'), style: { marginTop: '10px' } }, h('b', null, ok ? '正確！' : `答案是「${ans}」`), !r.ok ? r.why : r.priv ? `落在私有區段 ${r.priv}。` : showPriv ? '不在任何私有區段內，所以是公有位址。' : '四組都在 0～255 之間。'),
+            h('button', { class: 'btn', style: { marginTop: '10px' }, onclick: () => { k++; one(); } }, k === N - 1 ? '看結果' : '下一題 →'));
+        } }, c))), fb);
+    };
+    one();
+  };
+  chal.append(h('button', { class: 'btn sig', onclick: startChal }, showPriv ? '開始「公有還是私有」10 題挑戰' : '開始「合不合法」10 題挑戰'));
+  el.append(h('div', { class: 'grid2' },
+    h('div', null, h('label', { class: 'fld' }, '輸入 IPv4 位址', inp), h('div', { class: 'chips', style: { marginTop: '8px' } }, presets.map(p => h('button', { class: 'chip', style: { border: 0, cursor: 'pointer' }, onclick: () => { inp.value = p; upd(); } }, p))), out,
+      showPriv ? h('div', { class: 'tblw', style: { marginTop: '14px' } }, h('table', { class: 'tbl' }, h('tr', null, h('th', null, '私有網路位址區段')), PRIV.map(r => h('tr', null, h('td', { class: 'mono' }, r[4]))))) : null),
+    h('div', { class: 'panel', style: { background: 'var(--sunk)', border: 0 } }, h('div', { class: 'h3', style: { marginBottom: '8px' } }, '全班挑戰'), chal)));
+}
+
+// ---------- IPv6 縮寫練習 ----------
+function v6expand(s) {
+  s = s.trim().toLowerCase();
+  if (!/^[0-9a-f:]+$/.test(s)) return { err: '只能包含 0–9、a–f 與「:」。' };
+  const dc = s.split('::').length - 1;
+  if (dc > 1) return { err: '「::」只能使用一次。' };
+  let groups;
+  if (dc === 1) { const [a, b] = s.split('::'); const A = a ? a.split(':') : [], B = b ? b.split(':') : []; const miss = 8 - A.length - B.length; if (miss < 1) return { err: '組數太多了，「::」至少要代表 1 組 0。' }; groups = [...A, ...Array(miss).fill('0'), ...B]; }
+  else groups = s.split(':');
+  if (groups.length !== 8) return { err: `IPv6 要有 8 組，你寫了 ${groups.length} 組。` };
+  if (groups.some(g => g.length < 1 || g.length > 4)) return { err: '每組必須是 1～4 個十六進位字。' };
+  return { full: groups.map(g => g.padStart(4, '0')) };
+}
+function v6compress(full) {
+  const g = full.map(x => parseInt(x, 16).toString(16));
+  let best = -1, bl = 0;
+  for (let i = 0; i < 8;) { if (g[i] === '0') { let j = i; while (j < 8 && g[j] === '0') j++; if (j - i > bl) { bl = j - i; best = i; } i = j; } else i++; }
+  if (bl < 2) return g.join(':');
+  return g.slice(0, best).join(':') + '::' + g.slice(best + bl).join(':');
+}
+function simIPv6(el) {
+  let mode = 'short', cur;
+  const gen = () => {
+    const g = Array.from({ length: 8 }, () => { const v = rnd(1, 0xffff); const lead = pick([0, 0, 1, 1, 2, 3]); return v.toString(16).padStart(4, '0').replace(/^.{0,3}/, m => '0'.repeat(Math.min(lead, 3)) + m.slice(Math.min(lead, 3))); }).map(x => x.slice(-4));
+    const runLen = rnd(2, 4), at = rnd(1, 8 - runLen);
+    for (let i = at; i < at + runLen; i++) g[i] = '0000';
+    if (Math.random() < .4) { const k = pick([0, 7].filter(z => z < at || z >= at + runLen)); if (k != null) g[k] = '0000'; }
+    return g;
+  };
+  const box = h('div');
+  const steps = h('div');
+  const draw = () => {
+    cur = gen(); box.innerHTML = ''; steps.innerHTML = '';
+    const canon = v6compress(cur);
+    const shown = mode === 'short' ? cur.join(':') : canon;
+    const inp = h('input', { type: 'text', id: 'v6-in', class: 'v6in', placeholder: mode === 'short' ? '輸入最精簡的寫法' : '輸入完整的 8 組 × 4 字寫法', autocomplete: 'off', spellcheck: 'false' });
+    const fb = h('div', { style: { marginTop: '10px' } });
+    const check = () => {
+      const r = v6expand(inp.value);
+      if (r.err) { fb.replaceChildren(h('div', { class: 'expl no' }, h('b', null, '格式有問題'), r.err)); return; }
+      const same = r.full.join(':') === cur.join(':');
+      if (!same) { fb.replaceChildren(h('div', { class: 'expl no' }, h('b', null, '還原後的位址不一樣'), '你的答案還原後是 ' + r.full.join(':') + '，再比對一次。')); return; }
+      if (mode === 'full') { const strict = /^([0-9a-f]{4}:){7}[0-9a-f]{4}$/i.test(inp.value.trim()); fb.replaceChildren(h('div', { class: 'expl' + (strict ? '' : ' no') }, h('b', null, strict ? '正確！' : '位址相同，但題目要求完整寫法'), strict ? '8 組、每組 4 字，完全還原。' : '每組都要補足 4 個字，不可用「::」。')); return; }
+      const shortest = inp.value.trim().length <= canon.length;
+      fb.replaceChildren(h('div', { class: 'expl' + (shortest ? '' : ' no') }, h('b', null, shortest ? '正確，而且是最精簡的寫法！' : '位址正確，但還可以更精簡'), shortest ? '' : '參考答案：' + canon));
+    };
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+    box.append(h('div', { class: 'boxt' }, mode === 'short' ? '把這個 IPv6 位址縮到最短' : '把這個 IPv6 位址還原成完整寫法'), h('div', { class: 'v6' }, shown),
+      h('div', { style: { marginTop: '10px' } }, inp), h('div', { class: 'btnrow', style: { marginTop: '10px' } }, h('button', { class: 'btn', onclick: check }, '檢查'), h('button', { class: 'btn ghost', onclick: draw }, '換一題'),
+        h('button', { class: 'btn ghost', onclick: () => showSteps() }, '看步驟')), fb);
+  };
+  const showSteps = () => {
+    const s1 = cur.map(x => parseInt(x, 16).toString(16));
+    steps.replaceChildren(h('div', { class: 'panel', style: { marginTop: '14px' } }, h('div', { class: 'h3' }, '縮寫三步驟'),
+      h('div', { class: 'flow' },
+        h('div', { class: 'row' }, h('span', { class: 'min' }, '原始'), h('div', { class: 'mono', style: { wordBreak: 'break-all' } }, cur.join(':'))),
+        h('div', { class: 'row' }, h('span', { class: 'min' }, '①②'), h('div', null, h('b', null, '開頭的 0 省略；0000 寫成 0'), h('div', { class: 'mono', style: { wordBreak: 'break-all' } }, s1.join(':')))),
+        h('div', { class: 'row' }, h('span', { class: 'min' }, '③'), h('div', null, h('b', null, '最長的一段連續 0 用「::」代替（只能一次）'), h('div', { class: 'mono', style: { wordBreak: 'break-all', color: 'var(--signal)', fontWeight: 700 } }, v6compress(cur)))))));
+  };
+  const seg = h('div', { class: 'seg' }, [['short', '練習縮寫'], ['full', '練習還原']].map(([m, t]) => h('button', { 'aria-pressed': m === mode, onclick: e => { mode = m; $$('button', seg).forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); draw(); } }, t)));
+  el.append(h('div', { class: 'btnrow', style: { marginBottom: '12px' } }, seg, h('span', { class: 'chip' }, '規則：開頭 0 可省略｜0000 可寫 0｜連續 0 用「::」一次')), box, steps);
+  draw();
+}
+
+// ---------- 網址解剖器 ----------
+const CAT = { edu: '教育機構', gov: '政府機關', com: '公司行號', org: '非營利組織', net: '網路機構', mil: '軍事機關' };
+const REG = { tw: '臺灣', jp: '日本', kr: '韓國', au: '澳洲', ca: '加拿大', fr: '法國', uk: '英國', cn: '中國', de: '德國', '台灣': '臺灣' };
+const PROTO = { http: '全球資訊網（超文件傳輸協定）', https: '全球資訊網（加密傳輸）', ftp: '檔案傳輸', mailto: '電子郵件', telnet: '遠端登入', file: '檔案伺服器' };
+function simURL(el, T) {
+  const is115 = T.key === 't115';
+  const L = is115 ? { host: '主機名稱', org: '機構名稱', cat: '機構類別', reg: '地理名稱' } : { host: '主機名稱', org: '機構名稱', cat: '類別名稱', reg: '地區名稱' };
+  const inp = h('input', { type: 'text', id: 'url-in', class: 'mono', style: { width: '100%', fontSize: '1.05rem' }, value: is115 ? 'http://cap.rcpet.edu.tw:80/files.html' : 'www.ntu.edu.tw' });
+  const out = h('div');
+  const upd = () => {
+    out.innerHTML = '';
+    let s = inp.value.trim(); if (!s) return;
+    let proto = null, port = null, path = null, host = s;
+    const m = s.match(/^([a-z]+):(\/\/)?(.*)$/i);
+    if (m && PROTO[m[1].toLowerCase()]) { proto = m[1].toLowerCase(); host = m[3]; }
+    if (proto === 'mailto') { const at = host.split('@'); host = at[1] || ''; }
+    const pm = host.match(/^([^/:]+)(?::(\d+))?(\/.*)?$/);
+    if (!pm) { out.append(h('div', { class: 'verdict bad' }, '看不懂這個網址，請檢查格式。')); return; }
+    host = pm[1]; port = pm[2] || null; path = pm[3] || null;
+    const labels = host.split('.');
+    const roles = labels.map(() => 'host');
+    let i = labels.length - 1;
+    if (REG[labels[i]]) { roles[i] = 'reg'; i--; }
+    if (i >= 0 && CAT[labels[i]]) { roles[i] = 'cat'; i--; }
+    if (i >= 1) { roles[i] = 'org'; }
+    const parts = h('div', { class: 'parts' });
+    const P = (cls, t, l, x) => parts.append(h('div', { class: 'part ' + cls }, h('span', { class: 't' }, t), h('span', { class: 'l' }, l), x ? h('span', { class: 'x' }, x) : null));
+    const dot = t => parts.append(h('div', { class: 'part dot' }, h('span', { class: 't' }, t)));
+    if (proto) { P('c5', proto, '通訊協定', PROTO[proto]); dot(proto === 'mailto' ? ':…@' : '://'); }
+    const col = { host: 'c1', org: 'c2', cat: 'c3', reg: 'c4' };
+    labels.forEach((lb, k) => { if (k) dot('.'); const r = roles[k]; P(col[r], lb, L[r], r === 'cat' ? CAT[lb] : r === 'reg' ? REG[lb] : ''); });
+    if (port) { dot(':'); P('c6', port, '埠位址', port === '80' && (proto === 'http' || !proto) ? 'http 預設，可省略' : ''); }
+    if (path) P('c5', path, '路徑檔名', '');
+    out.append(parts);
+    const notes = [];
+    if (!roles.includes('reg') && roles.includes('cat')) notes.push(is115 ? '沒有地理名稱：依課本，地理名稱是美國時省略不寫。' : '沒有地區名稱，常見於國際性網站。');
+    if (roles.includes('cat') && roles.includes('reg')) { const org = labels[roles.indexOf('org')]; notes.push(`推測：這是位於「${REG[labels[roles.indexOf('reg')]]}」的「${CAT[labels[roles.indexOf('cat')]]}」${org ? `，機構簡稱為「${org}」` : ''}。`); }
+    if (proto === 'https') notes.push('https 代表傳輸過程有加密。');
+    if (is115 && !proto) notes.push('沒有寫通訊協定時，瀏覽器預設使用 http。');
+    notes.forEach(t => out.append(h('p', { style: { marginTop: '8px' } }, t)));
+  };
+  inp.oninput = upd; upd();
+  const presets = is115 ? ['http://cap.rcpet.edu.tw:80/files.html', 'https://www.ncl.edu.tw', 'https://www.cip.gov.tw', 'https://www.naer.edu.tw', 'ftp://ftp.ntu.edu.tw', 'mailto:abc@mail.com.tw', 'telnet://bbs.nsysu.edu.tw'] : ['www.ntu.edu.tw', 'www.taichung.gov.tw', 'https://www.edu.tw', 'www.ncl.edu.tw', 'www.google.com'];
+  el.append(h('label', { class: 'fld' }, '輸入網址（可以試試自己學校的網址）', inp), h('div', { class: 'chips', style: { marginTop: '8px' } }, presets.map(p => h('button', { class: 'chip', style: { border: 0, cursor: 'pointer' }, onclick: () => { inp.value = p; upd(); } }, p))), out,
+    h('div', { class: 'note', style: { marginTop: '14px' } }, is115 ? 'URL 結構：通訊協定 :// 網域名稱 : 埠位址 / 路徑檔名' : '網域名稱結構：主機 . 機構 . 類別 . 地區'));
+}
+
+// ---------- DNS 查詢流程 ----------
+function simDNS(el) {
+  const DOM = [['www.ntu.edu.tw', '140.112.8.116'], ['www.edu.tw', '140.111.34.54'], ['www.taichung.gov.tw', '163.29.130.10']];
+  let d = DOM[0], step = 0, timer = null;
+  const svg = sv('svg', { viewBox: '0 0 760 300', role: 'img', 'aria-label': 'DNS 查詢流程' });
+  const A = { pc: [110, 200], dns: [380, 70], web: [650, 200] };
+  sv('line', { x1: 110, y1: 200, x2: 380, y2: 70, style: 'stroke:var(--line);stroke-width:3;stroke-dasharray:6 6' }, svg);
+  sv('line', { x1: 110, y1: 200, x2: 650, y2: 200, style: 'stroke:var(--line);stroke-width:3;stroke-dasharray:6 6' }, svg);
+  const actor = (k, ic, t, sub) => { const [x, y] = A[k]; const g = sv('g', { transform: `translate(${x},${y})` }, svg); sv('rect', { x: -70, y: -40, width: 140, height: 80, rx: 12, style: 'fill:var(--surface);stroke:var(--primary);stroke-width:2', id: 'dns-' + k }, g); const fo = sv('foreignObject', { x: -14, y: -34, width: 28, height: 28 }, g); fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="color:var(--primary)">${icon(ic, 28)}</div>`; const t1 = sv('text', { y: 12, 'text-anchor': 'middle', class: 'svgtext', 'font-size': 14, 'font-weight': 700 }, g); t1.textContent = t; const t2 = sv('text', { y: 30, 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 11 }, g); t2.textContent = sub; return g; };
+  actor('pc', 'pc', '你的電腦', '瀏覽器'); actor('dns', 'server', 'DNS 伺服器', '網域名稱 ↔ IP 對照'); actor('web', 'server', '網站伺服器', '存放網頁');
+  const env = sv('g', { style: 'opacity:0' }, svg); const er = sv('rect', { x: -80, y: -15, width: 160, height: 30, rx: 15, style: 'fill:var(--signal)' }, env); const et = sv('text', { y: 5, 'text-anchor': 'middle', 'font-size': 12.5, 'font-weight': 700, style: 'fill:#fff;font-family:var(--f-body)' }, env);
+  const cap = h('div', { class: 'panel', style: { marginTop: '12px', minHeight: '86px' } });
+  const STEPS = () => [
+    { t: '① 輸入網域名稱', d: `你在瀏覽器網址列輸入「${d[0]}」。電腦還不知道這台網站主機的 IP 位址。` },
+    { t: '② 詢問 DNS', d: `電腦問 DNS 伺服器：「${d[0]} 的 IP 位址是多少？」`, from: 'pc', to: 'dns', msg: d[0] + ' 的 IP？' },
+    { t: '③ DNS 回覆 IP', d: `DNS 伺服器查對照資料後回覆：「是 ${d[1]}」。（示意用 IP）`, from: 'dns', to: 'pc', msg: d[1] },
+    { t: '④ 用 IP 連到網站', d: `電腦用 ${d[1]} 這個 IP 位址連到網站伺服器，請求網頁。`, from: 'pc', to: 'web', msg: '請給我網頁' },
+    { t: '⑤ 網站傳回網頁', d: '網站伺服器把網頁資料傳回來，瀏覽器顯示網頁。整個過程只要不到一秒！', from: 'web', to: 'pc', msg: '網頁資料' }];
+  const show = () => {
+    const S = STEPS()[step];
+    cap.replaceChildren(h('div', { class: 'h3' }, S.t), h('p', { style: { marginTop: '4px' } }, S.d));
+    ['pc', 'dns', 'web'].forEach(k => $('#dns-' + k, svg).style.stroke = (S.from === k || S.to === k || (step === 0 && k === 'pc')) ? 'var(--signal)' : 'var(--primary)');
+    prev.disabled = step === 0; next.disabled = step === 4;
+    if (S.from) { et.textContent = S.msg; const a = A[S.from], b = A[S.to]; env.style.opacity = 1; tween(1100, t => env.setAttribute('transform', `translate(${a[0] + (b[0] - a[0]) * t},${a[1] + (b[1] - a[1]) * t - 30})`)); }
+    else env.style.opacity = 0;
+  };
+  const prev = h('button', { class: 'btn ghost', onclick: () => { stop(); step--; show(); } }, '← 上一步');
+  const next = h('button', { class: 'btn', onclick: () => { stop(); step++; show(); } }, '下一步 →');
+  const stop = () => { clearInterval(timer); timer = null; auto.textContent = '▶ 自動播放'; };
+  const auto = h('button', { class: 'btn sig', onclick: () => { if (timer) return stop(); step = 0; show(); auto.textContent = '■ 停止'; timer = setInterval(() => { if (!el.isConnected || step >= 4) return stop(); step++; show(); }, 2200); } }, '▶ 自動播放');
+  const sel = h('select', { id: 'dns-dom', onchange: () => { d = DOM[sel.selectedIndex]; stop(); step = 0; show(); } }, DOM.map(x => h('option', null, x[0])));
+  el.append(h('div', { class: 'ctrls' }, h('label', { class: 'fld' }, '要連的網站', sel), h('div', { class: 'btnrow' }, prev, next, auto)), h('div', { class: 'simbox' }, svg), cap);
+  show();
+}
+
+// ---------- 無線距離比較 ----------
+function simWireless(el, T) {
+  const D = T.key === 't114' ? [
+    { n: '藍牙', a: 10, b: 300, alias: '無線個人網路', d: '傳輸距離約 10～300 公尺；成本低、體積小、安全性高，可進行語音及數據通訊。例：無線耳機連手機、智慧手錶、電動機車。' },
+    { n: 'Wi-Fi', a: 50, b: 300, alias: '無線區域網路', d: '開放空間約 300 公尺、室內約 100 公尺（實際合理距離約 50 公尺）；訊號易受遮蔽物影響。例：筆電在家連 Wi-Fi 上網。' },
+    { n: '行動網路', a: 250, b: 800, alias: '無線廣域網路', d: '手機與基地臺通訊（通話、資料傳輸），基地臺約每 250～800 公尺一座，涵蓋範圍廣。例：手機用 4G／5G 上網。', note: '基地臺間距' }
+  ] : [
+    { n: 'NFC', a: .04, d: '約 4 公分。發出電磁感應的電流訊號，在短距離內傳送資料。' },
+    { n: 'RFID', a: 10, d: '約 10 公尺。使用無線電訊號來識別特定的對象或裝置。' },
+    { n: '藍牙', a: 30, d: '約 30 公尺。用來與行動裝置在短距離間交換資料。' },
+    { n: 'Wi-Fi', a: 50, d: '約 50 公尺。全名為無線相容認證；由一臺連接實體網路線的無線基地臺發送無線電波給其他裝置。' },
+    { n: '行動網路', a: 100, d: '約 100 公尺。用於手機及數位終端設備，常見 4G 與 5G（5G 較新、速度較快）。個人熱點則是利用行動數據分享網路給其他裝置。' },
+    { n: '低軌衛星', a: 2000000, d: '約 2000 公里。運行低於地球軌道的衛星，主要功能是「通訊」。' }
+  ];
+  const W = 760, X0 = 120, X1 = 740, lo = -2, hi = 6.5;
+  const x = m => X0 + (Math.log10(m) - lo) / (hi - lo) * (X1 - X0);
+  const rowH = 46, H = 40 + D.length * rowH + 20;
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': '各種無線技術傳輸距離比較（對數刻度）' });
+  [[.01, '1 cm'], [.1, '10 cm'], [1, '1 m'], [10, '10 m'], [100, '100 m'], [1000, '1 km'], [10000, '10 km'], [100000, '100 km'], [1000000, '1000 km']].forEach(([m, t]) => {
+    sv('line', { x1: x(m), x2: x(m), y1: 26, y2: H - 14, style: 'stroke:var(--line);stroke-width:1' }, svg);
+    const tt = sv('text', { x: x(m), y: 18, 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 11 }, svg); tt.textContent = t;
+  });
+  const info = h('div', { class: 'panel', style: { marginTop: '12px' } });
+  const rows = [];
+  const sel = k => { rows.forEach((r, i) => r.style.opacity = i === k ? 1 : .45); const o = D[k]; info.replaceChildren(h('div', { class: 'h3' }, o.n, o.alias ? h('span', { class: 'chip p' }, o.alias) : null), h('p', { style: { marginTop: '6px' } }, o.d)); };
+  D.forEach((o, i) => {
+    const y = 40 + i * rowH;
+    const g = sv('g', { style: 'cursor:pointer', tabindex: 0, role: 'button' }, svg);
+    sv('rect', { x: 0, y: y - 4, width: W, height: rowH - 6, fill: 'transparent' }, g);
+    const nt = sv('text', { x: 8, y: y + 22, class: 'svgtext', 'font-size': 15, 'font-weight': 700 }, g); nt.textContent = o.n;
+    const xa = o.b ? x(o.a) : X0, xb = o.b ? x(o.b) : x(o.a);
+    sv('rect', { x: xa, y: y + 8, width: Math.max(4, xb - xa), height: 20, rx: 10, style: `fill:${o.b ? 'var(--primary)' : 'var(--primary-soft)'}` }, g);
+    if (!o.b) sv('circle', { cx: xb, cy: y + 18, r: 8, style: 'fill:var(--signal)' }, g);
+    const lab = o.b ? `${o.a}～${o.b} 公尺${o.note ? '（' + o.note + '）' : ''}` : o.a >= 1000 ? `約 ${o.a / 1000} 公里` : o.a < 1 ? `約 ${o.a * 100} 公分` : `約 ${o.a} 公尺`;
+    const right = xb + 14 > W - 120;
+    const lt = sv('text', { x: right ? xb - 14 : xb + 14, y: y + 23, class: 'svgtext', 'font-size': 12, 'text-anchor': right ? 'end' : 'start' }, g);
+    lt.textContent = lab;
+    g.addEventListener('click', () => sel(i)); g.addEventListener('keydown', e => { if (e.key === 'Enter') sel(i); });
+    rows.push(g);
+  });
+  el.append(h('div', { class: 'simbox' }, svg), h('div', { style: { fontSize: '.82rem', color: 'var(--muted)', marginTop: '6px' } }, '刻度為對數尺度：每一格是前一格的 10 倍。點選每一列看說明。數據依課本。'), info);
+  sel(0);
+}
+
+// ---------- 情境挑戰 ----------
+function simScenario(el, T) {
+  const S = SCEN[T.key];
+  const qs = S.items.map(([q, a, e]) => { const others = shuffle(S.opts.filter(o => o !== a)).slice(0, Math.min(3, S.opts.length - 1)); const o = shuffle([a, ...others]); return ['情境：' + q + '，最適合使用哪一種技術？', o, o.indexOf(a), e]; });
+  quizFormative(el, qs, '情境挑戰');
+}
+
+// ---------- Wi-Fi 速度瓶頸 ----------
+function simWifi(el) {
+  const MAX = { 4: 600, 5: 6933, 6: 9607.8 };
+  let dev = 5, ap = 6, isp = 100, b24 = 450, b5 = 1300, apv = 'AC';
+  const seg = (opts, cur, set, id) => { const s = h('div', { class: 'seg', id }); opts.forEach(([v, t]) => s.append(h('button', { 'aria-pressed': v === cur, onclick: e => { set(v); $$('button', s).forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); upd(); } }, t))); return s; };
+  const out = h('div'); const lab = h('div');
+  const upd = () => {
+    const ver = Math.min(dev, ap); const verMax = MAX[ver]; const real = Math.min(verMax, isp);
+    const pipe = (t, v, sub, bottle) => h('div', { class: 'slot', style: { borderStyle: 'solid', minHeight: '96px', borderColor: bottle ? 'var(--bad)' : 'var(--line)', background: bottle ? 'var(--bad-soft)' : 'var(--surface)' } }, h('b', null, t), h('span', { class: 'mono big', style: { fontSize: '1.1rem' } }, v), h('span', { class: 'cap' }, sub));
+    out.replaceChildren(
+      h('div', { class: 'hn hn2', style: { marginTop: '6px' } }, pipe('租用頻寬（ISP）', isp + ' Mbps', '向業者租用', isp <= verMax), h('div', { class: 'link' }, h('div', { class: 'conn flowing' })), pipe('基地臺', 'Wi-Fi ' + ap, ap === 6 ? '標示 AX' : '標示 AC', false), h('div', { class: 'link' }, h('div', { class: 'conn flowing' })), pipe('你的設備', 'Wi-Fi ' + dev, '支援的版本', dev < ap && verMax < isp), h('div'), h('div'), h('div'), h('div')),
+      h('div', { class: 'stack', style: { gap: '6px', marginTop: '12px' } },
+        h('p', null, h('b', null, '連線版本：'), dev === ap ? `兩邊都是 Wi-Fi ${ver}。` : `Wi-Fi 會向下支援，以較舊的 Wi-Fi ${ver} 連線（最高理想速率 ${verMax} Mbps）。`),
+        h('p', null, h('b', null, '上網速度上限：'), h('span', { class: 'mono', style: { color: 'var(--signal)', fontWeight: 700 } }, real + ' Mbps'), isp <= verMax ? `　卡在「租用頻寬」：上網速度不會高於向 ISP 租用的 ${isp} Mbps。` : '　卡在 Wi-Fi 版本。')));
+    lab.replaceChildren(h('div', { class: 'big mono', style: { fontSize: '2rem', color: 'var(--primary)' } }, apv + (b24 + b5)), h('p', null, `${apv} ＝ ${apv === 'AC' ? 'Wi-Fi 5（IEEE 802.11ac）' : 'Wi-Fi 6（IEEE 802.11ax）'}；${b24 + b5} ＝ 2.4 GHz 的 ${b24} ＋ 5 GHz 的 ${b5} Mbps（最高理想速率相加）`));
+  };
+  const s24 = h('select', { id: 'wf-24', onchange: e => { b24 = +e.target.value; upd(); } }, [300, 450, 574, 600].map(v => h('option', { value: v, selected: v === b24 }, v + ' Mbps')));
+  const s5 = h('select', { id: 'wf-5', onchange: e => { b5 = +e.target.value; upd(); } }, [867, 1300, 1733, 2402, 4804].map(v => h('option', { value: v, selected: v === b5 }, v + ' Mbps')));
+  el.append(h('div', { class: 'h3' }, '① 誰卡住了速度？'),
+    h('div', { class: 'ctrls', style: { marginTop: '8px' } },
+      h('label', { class: 'fld' }, '設備支援', seg([[4, 'Wi-Fi 4'], [5, 'Wi-Fi 5'], [6, 'Wi-Fi 6']], dev, v => dev = v, 'wf-dev')),
+      h('label', { class: 'fld' }, '基地臺', seg([[5, 'Wi-Fi 5'], [6, 'Wi-Fi 6']], ap, v => ap = v, 'wf-ap')),
+      h('label', { class: 'fld' }, '租用頻寬', seg([[100, '100'], [300, '300'], [500, '500'], [1000, '1000 Mbps']], isp, v => isp = v, 'wf-isp'))),
+    out,
+    h('div', { class: 'h3', style: { marginTop: '22px' } }, '② 看懂基地臺盒子上的標示'),
+    h('div', { class: 'ctrls', style: { marginTop: '8px' } }, h('label', { class: 'fld' }, '版本', seg([['AC', 'AC'], ['AX', 'AX']], apv, v => apv = v, 'wf-v')), h('label', { class: 'fld' }, '2.4 GHz 最高速率', s24), h('label', { class: 'fld' }, '5 GHz 最高速率', s5)),
+    lab,
+    h('div', { class: 'tblw', style: { marginTop: '12px' } }, h('table', { class: 'tbl' }, h('tr', null, ['版本', '發布', '標準', '最高傳輸速率'].map(t => h('th', null, t))), h('tr', null, h('td', null, 'Wi-Fi 5'), h('td', null, '2013'), h('td', { class: 'mono' }, '802.11ac'), h('td', { class: 'mono' }, '6933 Mbps')), h('tr', null, h('td', null, 'Wi-Fi 6'), h('td', null, '2019'), h('td', { class: 'mono' }, '802.11ax'), h('td', { class: 'mono' }, '9607.8 Mbps')))));
+  upd();
+}
+
+// ---------- 4G vs 5G ----------
+function simG5(el) {
+  const FILES = [['2 小時高畫質影片', 360], ['一季影集（10 集）', 3600], ['一張高解析照片', 1.2]];
+  let f = 0, raf = null;
+  const fmt = s => s >= 60 ? `${Math.floor(s / 60)} 分 ${Math.round(s % 60)} 秒` : `${s.toFixed(s < 1 ? 3 : 1)} 秒`;
+  const r4 = h('div', { class: 'rf' }), r5 = h('div', { class: 'rf g5' }), t4 = h('span', { class: 'mono' }, '—'), t5 = h('span', { class: 'mono' }, '—');
+  const race = () => {
+    cancelAnimationFrame(raf);
+    const T4 = FILES[f][1], T5 = T4 / 100, show = 6000; const t0 = performance.now();
+    const fr = now => { if (!el.isConnected) return; const sim = (now - t0) / show * T4; const p4 = Math.min(1, sim / T4), p5 = Math.min(1, sim / T5); r4.style.width = p4 * 100 + '%'; r5.style.width = p5 * 100 + '%'; t4.textContent = p4 < 1 ? fmt(sim) : '✓ ' + fmt(T4); t5.textContent = p5 < 1 ? fmt(sim) : '✓ ' + fmt(T5); if (p4 < 1) raf = requestAnimationFrame(fr); };
+    raf = requestAnimationFrame(fr);
+  };
+  const fs = h('select', { id: 'g5-file', onchange: e => { f = e.target.selectedIndex; race(); } }, FILES.map(x => h('option', null, x[0])));
+  // crowd
+  const cv = h('canvas', { class: 'crowd', width: 760, height: 260 });
+  let users = 300, gen = 4;
+  const cnt = h('span', { class: 'mono' });
+  const pts = Array.from({ length: 2000 }, () => [Math.random(), Math.random()]);
+  const drawC = () => {
+    const c = cv.getContext('2d'); const cs = getComputedStyle(document.documentElement);
+    const col = { ok: cs.getPropertyValue('--signal').trim() || '#e07a00', no: cs.getPropertyValue('--line').trim() || '#ccc', ink: cs.getPropertyValue('--ink').trim() || '#123', bg: cs.getPropertyValue('--surface').trim() || '#fff' };
+    c.fillStyle = col.bg; c.fillRect(0, 0, 760, 260);
+    const cap = gen === 4 ? 100 : 10000; const ok = Math.min(users, cap);
+    for (let i = 0; i < users; i++) { const [x, y] = pts[i]; const d = Math.hypot(x - .5, y - .5); c.fillStyle = col.no; c.beginPath(); c.arc(20 + x * 720, 20 + y * 220, 3.2, 0, 7); c.fill(); }
+    const order = pts.slice(0, users).map((p, i) => [Math.hypot(p[0] - .5, p[1] - .5), i]).sort((a, b) => a[0] - b[0]).slice(0, ok);
+    c.fillStyle = col.ok; order.forEach(([, i]) => { const [x, y] = pts[i]; c.beginPath(); c.arc(20 + x * 720, 20 + y * 220, 3.2, 0, 7); c.fill(); });
+    c.fillStyle = col.ink; c.font = '700 15px sans-serif'; c.textAlign = 'center'; c.fillText(gen + 'G 基地臺', 380, 135);
+    c.strokeStyle = col.ink; c.lineWidth = 2; c.beginPath(); c.moveTo(372, 118); c.lineTo(380, 92); c.lineTo(388, 118); c.stroke();
+    cnt.textContent = `${users} 人在現場，${ok} 人連得上（${gen}G 約可同時連 ${cap === 100 ? '100' : '上萬'} 台）`;
+  };
+  const us = h('input', { type: 'range', id: 'g5-users', min: 20, max: 2000, step: 20, value: users, oninput: e => { users = +e.target.value; drawC(); } });
+  const gseg = h('div', { class: 'seg' }, [4, 5].map(g => h('button', { 'aria-pressed': g === gen, onclick: e => { gen = g; $$('button', gseg).forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); drawC(); } }, g + 'G')));
+  el.append(h('div', { class: 'h3' }, '① 高速度：下載賽跑'), h('div', { class: 'ctrls', style: { marginTop: '8px', marginBottom: 0 } }, h('label', { class: 'fld' }, '下載內容', fs), h('button', { class: 'btn sig', onclick: race }, '▶ 開始賽跑')),
+    h('div', { class: 'race' }, h('div', { class: 'rr' }, h('b', null, '4G'), h('div', { class: 'rt' }, r4), t4), h('div', { class: 'rr' }, h('b', null, '5G'), h('div', { class: 'rt' }, r5), t5)),
+    h('p', { style: { fontSize: '.85rem', color: 'var(--muted)', marginTop: '6px' } }, '依課本：5G 最高速率約為 4G 的 100 倍，2 小時高畫質影片 4G 約 6 分鐘、5G 約 3.6 秒。動畫時間已壓縮。'),
+    h('div', { class: 'h3', style: { marginTop: '22px' } }, '② 多連結：跨年晚會人潮'), h('div', { class: 'ctrls', style: { marginTop: '8px' } }, h('label', { class: 'fld' }, '基地臺', gseg), h('label', { class: 'fld', style: { flex: '1', minWidth: '200px' } }, '現場人數', us)), cv, h('p', { style: { marginTop: '6px', fontSize: '.92rem' } }, cnt),
+    h('div', { class: 'h3', style: { marginTop: '22px' } }, '③ 低延遲'), h('p', { style: { marginTop: '6px' } }, '延遲時間短，可降低因延遲導致的失誤機率。例如遠距醫療：發生特殊狀況時，可即時連線醫生進行精密手術。'));
+  drawC();
+}
+
+// ---------- 電子郵件 副本／密件副本 ----------
+function simEmail(el) {
+  const P = [['林老師', 'lin.teacher@school.edu.tw'], ['小潔', 'jie@mail.com'], ['小明', 'ming@mail.com'], ['阿華', 'hua@mail.com'], ['媽媽', 'mom@mail.com']];
+  const R = ['不寄', '收件者', '副本', '密件副本'];
+  let role = [1, 0, 0, 0, 2];
+  const box = h('div'); const res = h('div');
+  const TASKS = [['任務 1', '寄作業給林老師，同時讓媽媽知道你交了（但媽媽不用回信）。', [1, 0, 0, 0, 2]], ['任務 2', '寄生日派對邀請給小潔、小明、阿華，但不想讓他們看到彼此的信箱。', [1, 3, 3, 3, 0]]];
+  const draw = () => {
+    box.innerHTML = '';
+    P.forEach(([n, m], i) => {
+      const s = h('div', { class: 'seg' }, R.map((r, k) => h('button', { 'aria-pressed': role[i] === k, onclick: () => { role[i] = k; draw(); res.innerHTML = ''; } }, r)));
+      box.append(h('div', { class: 'crow' }, h('div', null, h('b', null, n), h('div', { class: 'mono', style: { fontSize: '.72rem', color: 'var(--muted)', wordBreak: 'break-all' } }, m)), h('div', { style: { overflowX: 'auto' } }, s)));
+    });
+  };
+  const send = () => {
+    const to = P.filter((_, i) => role[i] === 1), cc = P.filter((_, i) => role[i] === 2), bcc = P.filter((_, i) => role[i] === 3);
+    if (!to.length && !cc.length && !bcc.length) { res.replaceChildren(h('div', { class: 'expl no', style: { marginTop: '10px' } }, h('b', null, '還沒有收件人'), '至少選一個收件者。')); return; }
+    const nm = a => a.map(x => x[0]).join('、') || '（無）';
+    const inbox = h('div', { class: 'inbox' }, [...to, ...cc, ...bcc].map(p => {
+      const me = bcc.includes(p);
+      return h('div', { class: 'mail' }, h('span', { class: 'who' }, p[0] + ' 的信箱'), h('span', { class: 'hl' }, '寄件者：我'), h('span', null, '收件者：' + nm(to)), cc.length ? h('span', null, '副本：' + nm(cc)) : null, me ? h('span', { class: 'bcc' }, '（你是密件副本收件人，其他人看不到你）') : null);
+    }));
+    res.replaceChildren(h('div', { class: 'boxt', style: { marginTop: '14px' } }, '寄出後，每個人看到的信件標頭'), inbox,
+      bcc.length ? h('p', { style: { marginTop: '8px', fontSize: '.92rem' } }, `注意：${nm(bcc)} 在密件副本，所以任何人的信箱都看不到他們的名字。`) : null);
+  };
+  el.append(h('div', { class: 'grid2' },
+    h('div', null, h('div', { class: 'boxt' }, '設定每個人的收件方式'), box, h('div', { class: 'btnrow', style: { marginTop: '12px' } }, h('button', { class: 'btn sig', onclick: send }, '寄出'))),
+    h('div', { class: 'stack', style: { gap: '10px' } }, h('div', { class: 'boxt' }, '試著完成任務'), TASKS.map(([t, d, ans]) => h('div', { class: 'panel', style: { padding: '12px 14px' } }, h('b', null, t), h('p', { style: { fontSize: '.92rem' } }, d),
+      h('button', { class: 'btn ghost', style: { marginTop: '8px', padding: '5px 12px', fontSize: '.85rem' }, onclick: e => { const ok = ans.every((v, i) => v === role[i] || (t === '任務 2' && i === 0 && [0, 1].includes(role[0]) && v !== 3)); e.currentTarget.textContent = ok ? '✓ 設定正確！' : '還不對，再看看'; send(); } }, '檢查我的設定'))),
+      h('div', { class: 'note' }, '副本：所有收件者都看得到。密件副本：其他收件者看不到。'))), res);
+  draw();
+}
+
+// ---------- PM2.5 感測站 ----------
+function simPM(el) {
+  const LV = [[11, '#9cff9c'], [23, '#31ff00'], [35, '#31cf00'], [41, '#ffff00'], [47, '#ffcf00'], [53, '#ff9a00'], [58, '#ff6464'], [64, '#ff0000'], [70, '#990000'], [1e9, '#ce30ff']];
+  const RANGE = ['0–11', '12–23', '24–35', '36–41', '42–47', '48–53', '54–58', '59–64', '65–70', '≥71'];
+  const ADV = ['可正常戶外活動。', '可正常戶外活動。', '可正常戶外活動。', '敏感性族群若有感受到症狀，應考慮減少戶外活動。', '敏感性族群若有感受到症狀，應考慮減少戶外活動。', '敏感性族群若有感受到症狀，應考慮減少戶外活動。', '一般民眾如有不適（眼痛、咳嗽、喉嚨痛等），應考慮減少戶外活動；敏感性族群應減少戶外活動。', '一般民眾如有不適（眼痛、咳嗽、喉嚨痛等），應考慮減少戶外活動；敏感性族群應減少戶外活動。', '一般民眾如有不適（眼痛、咳嗽、喉嚨痛等），應考慮減少戶外活動；敏感性族群應減少戶外活動。', '紫爆！一般民眾如有不適，應特別減少戶外活動；敏感性族群應避免戶外活動。'];
+  let v = 18, timer = null;
+  const dial = h('div', { class: 'pmdial' }); const txt = h('div'); const scale = h('div', { class: 'pmscale' });
+  LV.forEach((l, i) => scale.append(h('div', { style: { background: l[1] } }, i + 1)));
+  const rng = h('input', { type: 'range', id: 'pm-v', min: 0, max: 100, value: v, style: { width: '100%' }, oninput: e => { v = +e.target.value; upd(); } });
+  const upd = () => {
+    const k = LV.findIndex(l => v <= l[0]);
+    dial.style.background = LV[k][1]; dial.textContent = v; dial.style.color = k >= 8 ? '#fff' : '#111';
+    $$('div', scale).forEach((d, i) => d.classList.toggle('on', i === k));
+    txt.replaceChildren(h('div', { class: 'big' }, `第 ${k + 1} 級`, h('span', { style: { fontSize: '.9rem', fontWeight: 500, color: 'var(--muted)', marginLeft: '8px' } }, RANGE[k] + ' μg/m³')), h('p', { style: { maxWidth: '46ch' } }, ADV[k]));
+    rng.value = v;
+  };
+  const live = h('button', { class: 'btn ghost', onclick: () => {
+    if (timer) { clearInterval(timer); timer = null; live.textContent = '▶ 模擬感測器即時上傳'; return; }
+    live.textContent = '■ 停止上傳';
+    timer = setInterval(() => { if (!el.isConnected) return clearInterval(timer); v = Math.max(0, Math.min(100, v + rnd(-9, 11))); upd(); }, 1500);
+  } }, '▶ 模擬感測器即時上傳');
+  el.append(h('div', { class: 'btnrow', style: { color: 'var(--muted)', fontSize: '.9rem', marginBottom: '10px' } }, iconEl('sensor', 22), '感測器', '→', iconEl('globe', 22), '物聯網', '→', iconEl('server', 22), '服務平臺', '→', iconEl('phone', 22), '「紫爆在哪裡」查詢'),
+    h('label', { class: 'fld' }, '拖曳調整 PM2.5 濃度（μg/m³）', rng), h('div', { class: 'pmbig' }, dial, txt), scale,
+    h('div', { class: 'btnrow', style: { marginTop: '12px' } }, live),
+    h('p', { style: { fontSize: '.85rem', color: 'var(--muted)', marginTop: '8px' } }, '分級依課本（英國標準）。真實資料可到「紫爆在哪裡」網站 purbao.lass-net.org 查看。'));
+  upd();
+}
+
+// ---------- VPN 模擬 ----------
+function simVPN(el) {
+  let on = false;
+  const svg = sv('svg', { viewBox: '0 0 760 260', role: 'img', 'aria-label': 'VPN 連線示意' });
+  const box = (x, y, t, sub, id) => { const g = sv('g', { transform: `translate(${x},${y})` }, svg); sv('rect', { x: -78, y: -38, width: 156, height: 76, rx: 12, id, style: 'fill:var(--surface);stroke:var(--primary);stroke-width:2' }, g); const a = sv('text', { y: -4, 'text-anchor': 'middle', class: 'svgtext', 'font-size': 14, 'font-weight': 700 }, g); a.textContent = t; const b = sv('text', { y: 16, 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 11, id: id + 't' }, g); b.textContent = sub; return g; };
+  const direct = sv('path', { d: 'M168 190 L592 190', style: 'stroke:var(--muted);stroke-width:3;fill:none' }, svg);
+  const tun1 = sv('path', { d: 'M168 175 L302 75', style: 'stroke:var(--ok);stroke-width:12;stroke-linecap:round;fill:none;opacity:.35' }, svg);
+  const tun2 = sv('path', { d: 'M458 75 L592 175', style: 'stroke:var(--muted);stroke-width:3;fill:none' }, svg);
+  box(90, 190, '你的電腦', '臺灣 IP：1.34.x.x', 'v-pc'); box(380, 60, 'VPN 伺服器', '位於國外', 'v-vpn'); box(670, 190, '國外影音網站', '限當地 IP 觀看', 'v-web');
+  const spy = sv('g', { transform: 'translate(380,215)' }, svg); const sp = sv('text', { 'text-anchor': 'middle', class: 'svgmuted', 'font-size': 12, id: 'v-spy' }, spy);
+  const result = h('div', { class: 'panel', style: { marginTop: '12px' } });
+  const upd = () => {
+    [tun1, tun2].forEach(p => p.style.display = on ? '' : 'none'); direct.style.display = on ? 'none' : '';
+    sp.textContent = on ? '公共 Wi-Fi 上的其他人看到：#@$%&*（加密後的亂碼）' : '公共 Wi-Fi 上的其他人看到：你正在連「國外影音網站」';
+    sp.setAttribute('y', on ? 30 : -6);
+    $('#v-webt', svg).textContent = on ? '看到 VPN 伺服器的 IP' : '看到臺灣 IP';
+    $('#v-web', svg).style.stroke = on ? 'var(--ok)' : 'var(--bad)';
+    result.replaceChildren(h('div', { class: 'verdict ' + (on ? 'ok' : 'bad'), style: { marginTop: 0 } }, on ? '網站以為你在當地，可以觀看' : '網站偵測到臺灣 IP：本節目僅限當地觀看'),
+      h('ul', { class: 'pts' }, on ? [h('li', null, '流量經過加密隧道，中間的人看不懂內容。'), h('li', null, '網站看到的是 VPN 伺服器的 IP，隱藏了你的 IP 與連線位置。'), h('li', null, '多繞一段路，速度通常不會變快，甚至可能變慢。')] : [h('li', null, '網站看得到你的真實 IP 與所在地區。'), h('li', null, '在公共 Wi-Fi 上，傳輸內容較容易被他人觀察。')]));
+    sw.textContent = on ? 'VPN：開啟' : 'VPN：關閉'; sw.setAttribute('aria-pressed', on);
+  };
+  const sw = h('button', { class: 'tbtn', style: { fontSize: '1rem', padding: '8px 18px', fontWeight: 700 }, onclick: () => { on = !on; upd(); } });
+  el.append(h('div', { class: 'btnrow', style: { marginBottom: '10px' } }, sw, h('span', { style: { color: 'var(--muted)', fontSize: '.9rem' } }, '切換開關，比較網站看到的 IP 與中間人看到的內容')), h('div', { class: 'simbox' }, svg), result,
+    h('div', { class: 'note', style: { marginTop: '12px' } }, '教學提醒：VPN 是一種網路服務，使用時仍須遵守法律與網站的使用規範；使用前也要確認 VPN 業者是否可信。'));
+  upd();
+}
+// ===== Google 試算表成績登錄 =====
+let CONFIG = { sheets: [] };
+try { const c = JSON.parse(document.getElementById('nk-config').textContent); if (c && Array.isArray(c.sheets)) CONFIG = c; } catch (e) {}
+const SHEET_RE = /^https:\/\/script\.google\.com\/(?:a\/macros\/[A-Za-z0-9.-]+\/)?(?:macros\/)?s\/[A-Za-z0-9_-]{20,}\/exec$/;
+const PAGE_HEAD = '<title>網路課教學箱</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap">\n';
+const SRC = { css: (document.getElementById('nk-css') || {}).textContent || '', js: (document.getElementById('nk-js') || {}).textContent || '' };
+function buildDoc(config) {
+  const json = JSON.stringify(config).replace(/</g, '\\u003c');
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>'
+    + PAGE_HEAD + '<style id="nk-css">' + SRC.css + '</style>\n<div id="app"></div>\n<script type="application/json" id="nk-config">' + json + '<\/script>\n<script id="nk-js">' + SRC.js + '<\/script></body></html>';
+}
+
+// 學生端：送出成績
+function scoreSendBox(p) {
+  if (!CONFIG.sheets.length) return h('p', { style: { fontSize: '.82rem', color: 'var(--muted)' } }, '（老師尚未設定成績試算表，成績不會自動記錄。）');
+  let stu = {}; try { stu = JSON.parse(store.get('nk-stu', '{}')) || {}; } catch (e) {}
+  const v = { cls: p.cls || stu.cls || '', no: p.no || stu.no || '', name: p.name || stu.name || '' };
+  let si = Math.min(+store.get('nk-sheet', 0) || 0, CONFIG.sheets.length - 1);
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const msg = h('div', { style: { fontSize: '.9rem' } });
+  const a = h('a', { class: 'btn sig', target: '_blank', rel: 'noopener', style: { textDecoration: 'none' } }, '送出成績到老師的試算表');
+  const upd = () => {
+    const q = new URLSearchParams({ v: p.v, type: p.type, unit: p.unit || '', cls: v.cls, no: v.no, name: v.name, score: p.score, correct: p.correct, total: p.total, detail: p.detail || '', wrong: (p.wrong || '').slice(0, 700), id });
+    a.href = CONFIG.sheets[si].url + '?' + q.toString();
+  };
+  a.addEventListener('click', e => {
+    if (!v.cls || !v.no || !v.name) { e.preventDefault(); msg.replaceChildren(h('span', { style: { color: 'var(--bad)', fontWeight: 700 } }, '請先填好班級、座號、姓名。')); return; }
+    store.set('nk-stu', JSON.stringify(v));
+    msg.replaceChildren(h('span', { style: { color: 'var(--ok)', fontWeight: 700 } }, '已在新分頁送出。'), ' 看到「成績已登錄 ✓」就完成了；重複按也只會記錄一次。若新分頁要求登入，請用學校 Google 帳號登入。');
+  });
+  const inp = (k, lb, w) => h('label', { class: 'fld' }, lb, h('input', { type: 'text', id: 'send-' + k, value: v[k], style: { width: w }, oninput: e => { v[k] = e.target.value.trim(); upd(); } }));
+  const sel = CONFIG.sheets.length > 1 ? h('label', { class: 'fld' }, '我的老師／班級', h('select', { id: 'send-sheet', onchange: e => { si = e.target.selectedIndex; store.set('nk-sheet', si); upd(); } }, CONFIG.sheets.map((s, i) => h('option', { selected: i === si }, s.label)))) : null;
+  upd();
+  return h('div', { class: 'panel', style: { background: 'var(--sunk)', border: 0, padding: '14px 16px' } },
+    h('div', { class: 'h3', style: { marginBottom: '8px' } }, '把成績送給老師', CONFIG.sheets.length === 1 ? h('span', { class: 'chip p' }, CONFIG.sheets[0].label) : null),
+    h('div', { class: 'ctrls', style: { marginBottom: '10px' } }, sel, inp('cls', '班級', '80px'), inp('no', '座號', '64px'), inp('name', '姓名', '120px'), a), msg);
+}
+
+// 教師端：設定頁
+const GAS_CODE = `// 網路課教學箱：成績收件程式（貼到 Google 試算表的「擴充功能 → Apps Script」）
+const SHEET_NAME = '成績';
+const HEAD = ['送出時間','教材版本','測驗類型','單元','班級','座號','姓名','分數','答對題數','總題數','各單元答對','錯題','識別碼'];
+
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.test) return page('連線成功 ✓', '這個網址可以接收成績，回到網站按「儲存到網站」。');
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    if (sh.getLastRow() === 0) { sh.appendRow(HEAD); sh.setFrozenRows(1); }
+    const last = sh.getLastRow();
+    if (p.id && last > 1) {
+      const start = Math.max(2, last - 299);
+      const ids = sh.getRange(start, 13, last - start + 1, 1).getValues().flat();
+      if (ids.indexOf(p.id) >= 0) return page('已經登錄過了', '這筆成績先前已送出，不會重複記錄。');
+    }
+    sh.appendRow([new Date(), t(p.v), t(p.type), t(p.unit), t(p.cls), t(p.no), t(p.name),
+      Number(p.score) || 0, Number(p.correct) || 0, Number(p.total) || 0, t(p.detail), t(p.wrong), t(p.id)]);
+  } finally { lock.releaseLock(); }
+  return page('成績已登錄 ✓', t(p.cls) + ' 班 ' + t(p.no) + ' 號 ' + t(p.name) + '：' + (Number(p.score) || 0) + ' 分。可以關閉這個分頁了。');
+}
+
+// 避免文字被當成公式
+function t(s) { s = String(s || '').slice(0, 1000); return /^[=+\\-@]/.test(s) ? "'" + s : s; }
+
+function page(title, msg) {
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return HtmlService.createHtmlOutput('<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<div style="font-family:sans-serif;text-align:center;padding:48px 16px"><h2>' + esc(title) + '</h2><p>' + esc(msg) + '</p></div>')
+    .setTitle('成績登錄');
+}`;
+
+function settingsView(T) {
+  const wrap = h('div', { class: 'stack', style: { gap: '22px' } });
+  const msg = h('div', { style: { fontWeight: 700 } });
+  const list = [...CONFIG.sheets];
+  const save = async (next, btn) => {
+    btn.disabled = true; msg.style.color = 'var(--muted)'; msg.textContent = '儲存中…';
+    let art = null; try { art = await claude.use('artifact'); } catch (e) {}
+    if (!art) { btn.disabled = false; fallback(next); return; }
+    try { await art.publish(buildDoc({ ...CONFIG, sheets: next })); msg.style.color = 'var(--ok)'; msg.textContent = '已儲存，網站會重新載入。'; }
+    catch (e) {
+      btn.disabled = false; msg.style.color = 'var(--bad)';
+      const c = e && e.code;
+      msg.textContent = c === 'not_writer' || c === 'not_granted' ? '你沒有這個網站的編輯權限，無法儲存。請網站擁有者把你設為編輯者，或把網址交給擁有者新增。'
+        : c === 'conflict' ? '網站剛被其他人更新，畫面會重新載入，請再操作一次。'
+        : '儲存失敗：' + ((e && e.message) || '請稍後再試');
+    }
+  };
+  const fallback = next => {
+    const add = next.filter(x => !CONFIG.sheets.some(y => y.url === x.url));
+    const text = add.length ? '請把這個成績試算表加到「網路課教學箱」：\n' + add.map(x => `名稱：${x.label}\n網址：${x.url}`).join('\n') : '請從「網路課教學箱」移除成績試算表，只保留：' + (next.map(x => x.label).join('、') || '（全部移除）');
+    const cp = h('button', { class: 'btn', onclick: () => { const ok = () => cp.textContent = '已複製 ✓ 請貼到與 Claude 的對話'; try { navigator.clipboard.writeText(text).then(ok, () => { ta.select(); cp.textContent = '已選取，請按 Ctrl+C'; }); } catch (e) { ta.select(); cp.textContent = '已選取，請按 Ctrl+C'; } } }, '複製這段文字');
+    const ta = h('textarea', { id: 'gs-fallback', readonly: true, rows: 3, class: 'mono', style: { width: '100%', fontSize: '.8rem', border: '1.5px solid var(--line)', borderRadius: '8px', padding: '8px', background: 'var(--surface)' } }, text);
+    msg.style.color = 'var(--ink)';
+    if (!window.claude) {
+      const dl = h('button', { class: 'btn sig', onclick: () => {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buildDoc({ ...CONFIG, sheets: next })], { type: 'text/html' })); a.download = 'index.html'; document.body.append(a); a.click(); a.remove();
+        dl.textContent = '已下載 index.html ✓';
+      } }, '下載設定好的 index.html');
+      msg.replaceChildren(h('div', { class: 'note', style: { fontWeight: 400 } },
+        h('b', { style: { display: 'block', marginBottom: '4px' } }, '這個網站放在 GitHub Pages 等一般網站空間，網頁無法自己改寫檔案'),
+        '請下載已經寫入設定的 index.html，再上傳到 GitHub 取代原本的檔案：',
+        h('ol', { class: 'pts' }, h('li', null, '按下方按鈕下載 index.html。'), h('li', null, '到 GitHub 的網站專案，按「Add file → Upload files」，把剛下載的 index.html 拖進去。'), h('li', null, '按「Commit changes」，約 1～2 分鐘後重新整理網頁，「目前已設定」就會出現這位老師。')),
+        h('div', { class: 'btnrow', style: { marginTop: '8px' } }, dl)));
+      return;
+    }
+    msg.replaceChildren(h('div', { class: 'note', style: { fontWeight: 400 } },
+      h('b', { style: { display: 'block', marginBottom: '4px' } }, '目前這個視窗不能直接儲存設定'),
+      '有些開啟方式（例如在 App 的側邊面板裡）不支援網站自我更新。請改用以下任一種方式：',
+      h('ul', { class: 'pts' }, h('li', null, '用瀏覽器開啟 claude.ai 上的這個網站連結，再按一次「儲存到網站」。'), h('li', null, '或複製下面這段文字，貼到與 Claude 的對話中，請 Claude 幫你加入。')),
+      h('div', { style: { marginTop: '8px' } }, ta), h('div', { class: 'btnrow', style: { marginTop: '6px' } }, cp)));
+  };
+  const lb = h('input', { type: 'text', id: 'gs-label', placeholder: '例：王老師 901–905 班', style: { width: '100%' } });
+  const url = h('input', { type: 'text', id: 'gs-url', class: 'mono', placeholder: 'https://script.google.com/macros/s/……/exec', style: { width: '100%' } });
+  const test = h('a', { class: 'btn ghost', target: '_blank', rel: 'noopener', style: { textDecoration: 'none' } }, '測試連線');
+  const urlMsg = h('div', { style: { fontSize: '.85rem' } });
+  const addB = h('button', { class: 'btn sig', disabled: true, onclick: () => save([...list, { label: lb.value.trim(), url: url.value.trim() }], addB) }, '儲存到網站');
+  const chk = () => {
+    const u = url.value.trim(), ok = SHEET_RE.test(u);
+    test.href = ok ? u + '?test=1' : '#'; test.style.pointerEvents = ok ? '' : 'none'; test.style.opacity = ok ? 1 : .45;
+    urlMsg.textContent = !u ? '' : ok ? '格式正確。先按「測試連線」，新分頁出現「連線成功 ✓」再儲存。' : /docs\.google\.com\/spreadsheets/.test(u) ? '這是試算表的分享網址，網頁無法直接寫入。請依上方步驟建立 Apps Script，貼上結尾是 /exec 的網址。' : '網址應該是 https://script.google.com/…/exec。';
+    urlMsg.style.color = ok ? 'var(--ok)' : 'var(--bad)';
+    addB.disabled = !ok || !lb.value.trim();
+  };
+  url.oninput = chk; lb.oninput = chk; chk();
+  const copyB = h('button', { class: 'btn ghost', onclick: () => {
+    const done = () => { copyB.textContent = '已複製 ✓'; setTimeout(() => copyB.textContent = '複製程式碼', 1800); };
+    try { navigator.clipboard.writeText(GAS_CODE).then(done, () => { selectCode(); copyB.textContent = '已選取，請按 Ctrl+C'; }); } catch (e) { selectCode(); copyB.textContent = '已選取，請按 Ctrl+C'; }
+  } }, '複製程式碼');
+  const pre = h('pre', { class: 'mono', style: { margin: 0, padding: '14px', fontSize: '.78rem', lineHeight: 1.5, background: 'var(--sunk)', borderRadius: '8px', overflow: 'auto', maxHeight: '320px', whiteSpace: 'pre' } }, GAS_CODE);
+  const selectCode = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+  wrap.append(
+    h('div', { class: 'pagehd' }, h('div', { class: 'eyebrow' }, '教師設定'), h('h1', { class: 'h1' }, '成績自動存到 Google 試算表'),
+      h('p', { class: 'lead' }, '試算表的分享網址只能讓人看或編輯，網頁無法直接寫進去。所以要在試算表裡加一個免費的 Apps Script 小程式當作「成績收件匣」。每位老師只要設定一次，約 5 分鐘。')),
+    h('ol', { class: 'steps', style: { padding: 0, margin: 0 } },
+      h('li', null, h('b', null, '建立試算表'), h('span', null, '到 Google 雲端硬碟新增一份空白試算表，命名如「網路課成績」。')),
+      h('li', null, h('b', null, '貼上程式碼'), h('span', null, '試算表選單「擴充功能 → Apps Script」，刪掉原本的內容，貼上下方程式碼，按儲存。')),
+      h('li', null, h('b', null, '部署成網頁應用程式'), h('span', null, '右上「部署 → 新增部署作業」，類型選「網頁應用程式」；執行身分選「我」；誰可以存取選「所有人」（學校帳號若只有「網域內所有人」也可以）。按部署並完成授權。')),
+      h('li', null, h('b', null, '貼上網址並測試'), h('span', null, '複製「網頁應用程式網址」（結尾是 /exec），貼到下方，按「測試連線」確認後再「儲存到網站」。'))),
+    h('div', { class: 'panel' }, h('div', { class: 'btnrow', style: { justifyContent: 'space-between', marginBottom: '10px' } }, h('div', { class: 'h3' }, 'Apps Script 程式碼'), copyB), pre),
+    h('div', { class: 'panel stack', style: { gap: '12px' } }, h('div', { class: 'h3' }, '新增成績試算表'),
+      h('label', { class: 'fld' }, '顯示名稱（學生會在選單看到，可寫老師與班級）', lb),
+      h('label', { class: 'fld' }, 'Apps Script 網頁應用程式網址', url), urlMsg,
+      h('div', { class: 'btnrow' }, test, addB), msg),
+    h('div', { class: 'panel' }, h('div', { class: 'h3', style: { marginBottom: '8px' } }, `目前已設定（${list.length}）`),
+      list.length ? h('div', { class: 'tblw' }, h('table', { class: 'tbl' }, h('tr', null, h('th', null, '名稱'), h('th', null, '網址'), h('th', null, '')),
+        list.map((s, i) => { const rm = h('button', { class: 'btn ghost', style: { padding: '4px 10px', fontSize: '.82rem' } }, '移除'); rm.onclick = () => save(list.filter((_, k) => k !== i), rm); return h('tr', null, h('td', null, s.label), h('td', { class: 'mono', style: { fontSize: '.75rem', wordBreak: 'break-all' } }, s.url.replace(/\/s\/(.{6}).+(.{4})\/exec$/, '/s/$1…$2/exec')), h('td', null, rm)); })))
+        : h('p', { style: { color: 'var(--muted)' } }, '尚未設定。設定後，小測驗與總結性評量的結果頁就會出現「送出成績到老師的試算表」按鈕。')),
+    h('div', { class: 'note' }, h('b', null, '注意事項　'), '①學生按下送出時會開啟新分頁，看到「成績已登錄 ✓」才算完成。②成績直接送到老師自己的試算表，不經過其他伺服器。③收件網址存在網頁裡，知道網址的人都能送資料進來，建議定期檢查異常紀錄；不再使用時可在 Apps Script「管理部署作業」封存。④只有對這個網站有編輯權限的老師可以儲存設定。'));
+  return wrap;
+}
+// ===== 活動登錄 =====
+const ACTS = {
+  timeline114: { k: '排序', t: '網路發展時間軸', d: '把五個重要事件依發生先後排好，檢查後會顯示年份。', ask: '如果柏納．李當年替 WWW 申請專利、收取費用，今天的網路會有什麼不同？', r: el => seqGame(el, SEQ.timeline114) },
+  seqSwitch115: { k: '排序', t: '封包交換三步驟', d: '把封包交換的三個階段排成正確順序。', ask: '為什麼要先「編號」再傳送？如果沒有編號會怎樣？', r: el => seqGame(el, SEQ.seqSwitch115) },
+  homenet: { k: '模擬', t: '家用網路接線', d: '先點一個空位，再點下方的設備放進去；全部放好後按「檢查接線」。答對後訊號會開始流動。', ask: '家裡的「小烏龜」和無線分享器，分別對應圖上哪些位置？', r: (el, T) => simHomenet(el, T) },
+  packet: { k: '模擬', t: '封包傳送模擬', d: '輸入一句話，看它被切成封包、走不同路線抵達，再依編號重組。可調整遺失機率，或直接點擊飛行中的封包讓它遺失。', ask: '同一句話用相同的遺失率傳幾次，抵達順序每次都一樣嗎？為什麼？', r: (el, T) => simPacket(el, T) },
+  iptool: { k: '工具', t: 'IP 檢測器', d: '輸入 IPv4 位址，立即看到每組的二進位與判斷結果；右邊可進行全班 10 題挑戰。', ask: '為什麼每組最大只到 255？（提示：8 個位元最多能表示多少種數字？）', r: (el, T) => simIP(el, T) },
+  ipv6: { k: '練習', t: 'IPv6 縮寫練習', d: '系統隨機出題。卡住時按「看步驟」，會逐步示範三個省略規則。', ask: '為什麼「::」只能用一次？請試著舉出用兩次會產生的問題。', r: el => simIPv6(el) },
+  dns: { k: '動畫', t: 'DNS 查詢流程', d: '一步一步看瀏覽器怎麼透過 DNS 把網域名稱換成 IP，再連到網站。', ask: '如果 DNS 伺服器故障了，我們還能用什麼方法連上網站？', r: el => simDNS(el) },
+  url: { k: '工具', t: '網址解剖器', d: '輸入任何網址，自動用顏色標出每個部分代表的意義。', ask: '查查看你們學校、縣市政府的網址，各部分分別代表什麼？', r: (el, T) => simURL(el, T) },
+  wireless: { k: '圖表', t: '無線距離比較', d: '用同一把尺比較各種無線技術的傳輸距離。點選每一列看說明。', ask: '為什麼藍牙耳機離手機太遠就會斷斷續續？', r: (el, T) => simWireless(el, T) },
+  scenario: { k: '挑戰', t: '情境挑戰', d: '看生活情境，判斷最適合的無線技術，作答後立即看到解析。', ask: '你今天已經用過哪幾種無線技術了？', r: (el, T) => simScenario(el, T) },
+  wifiCalc: { k: '計算', t: 'Wi-Fi 速度瓶頸', d: '改變設備版本、基地臺、租用頻寬，看看速度被誰卡住；再練習看懂基地臺盒子上的規格標示。', ask: '家裡網路很慢，第一步應該先檢查什麼？', r: el => simWifi(el) },
+  g5: { k: '模擬', t: '4G vs 5G', d: '下載賽跑體驗高速度，拉動人數滑桿體驗多連結。', ask: '5G 訊號傳得比較短，為什麼還是值得建置？', r: el => simG5(el) },
+  email: { k: '模擬', t: '副本與密件副本', d: '替每個人設定收件方式後按「寄出」，比較每個人的信箱看到什麼。', ask: '什麼時候適合用副本？什麼時候一定要用密件副本？', r: el => simEmail(el) },
+  pm25: { k: '模擬', t: 'PM2.5 感測站', d: '拖曳濃度或開啟「即時上傳」，觀察分級顏色與活動建議，體會物聯網感測器的應用。', ask: '除了空氣品質，學校裡還有哪些地方可以裝感測器？', r: el => simPM(el) },
+  vpn: { k: '模擬', t: 'VPN 模擬', d: '切換 VPN 開關，比較網站看到的 IP 與公共 Wi-Fi 上他人看到的內容。', ask: '使用 VPN 有哪些好處？又有哪些要注意的地方？', r: el => simVPN(el) }
+};
+Object.entries(MATCH).forEach(([id, cfg]) => { ACTS[id] = { k: '配對', t: cfg.title, d: cfg.multi ? '點左邊的情境，再點右邊的服務類型（同一類型可以重複使用）。' : '點左邊的項目，再點右邊對應的說明，全部配對完成就過關。', r: el => matchGame(el, cfg) }; });
+
+// ===== 路由與畫面 =====
+let TRK = store.get('nk-track', 't114');
+const app = document.getElementById('app');
+const parseHash = () => { const m = (location.hash || '').slice(1).match(/^(t114|t115)(?:-(u\d|exam|guide))?(?:-(plan|act|quiz))?(?:-([a-zA-Z0-9]+))?$/); return m ? { t: m[1], v: m[2] || 'home', tab: m[3] || 'plan', act: m[4] } : { t: TRK, v: 'home', tab: 'plan' }; };
+const go = (s) => { location.hash = s; };
+
+function topbar(t) {
+  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': '選擇教材版本' }, ['t114', 't115'].map(k => h('button', { 'aria-pressed': k === t, onclick: () => { store.set('nk-track', k); go(k); } }, TRACKS[k].short)));
+  const proj = h('button', { class: 'tbtn', 'aria-pressed': document.documentElement.classList.contains('proj'), onclick: () => { const on = document.documentElement.classList.toggle('proj'); proj.setAttribute('aria-pressed', on); store.set('nk-proj', on ? '1' : ''); } }, '投影大字');
+  return h('header', { class: 'top' }, h('div', { class: 'top-in' },
+    h('a', { class: 'brand', href: '#' + t }, h('span', { html: `<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="2" width="26" height="26" rx="7" fill="var(--primary)"/><circle cx="9" cy="10" r="2.6" fill="#fff"/><circle cx="21" cy="10" r="2.6" fill="#fff"/><circle cx="15" cy="21" r="2.6" fill="var(--signal)"/><path d="M9 10L21 10M9 10L15 21M21 10L15 21" stroke="#fff" stroke-width="1.6"/></svg>`, style: { display: 'inline-flex' } }), '網路課教學箱'),
+    seg, h('span', { class: 'sp' }), proj), h('div', { class: 'wire' }));
+}
+function rail(T, cur) {
+  return h('nav', { class: 'rail', 'aria-label': '單元' },
+    h('a', { href: '#' + T.key, 'aria-current': cur === 'home' ? 'page' : null }, h('span', { class: 'code' }, '首頁'), '總覽與使用方式'),
+    h('div', { class: 'grp' }, '單元'),
+    T.units.map(u => h('a', { href: `#${T.key}-${u.id}`, 'aria-current': cur === u.id ? 'page' : null }, h('span', { class: 'code' }, u.code), u.title)),
+    h('div', { class: 'grp' }, '評量'),
+    h('a', { href: `#${T.key}-exam`, 'aria-current': cur === 'exam' ? 'page' : null }, h('span', { class: 'code' }, '總結'), '總結性評量'),
+    h('div', { class: 'grp' }, '教師'),
+    h('a', { href: `#${T.key}-guide`, 'aria-current': cur === 'guide' ? 'page' : null }, h('span', { class: 'code' }, '設定'), '成績試算表' + (CONFIG.sheets.length ? `（${CONFIG.sheets.length}）` : '')));
+}
+function homeView(T) {
+  const nActs = new Set(T.units.flatMap(u => u.acts)).size, nQ = T.units.reduce((s, u) => s + u.quiz.length, 0);
+  return h('div', { class: 'stack', style: { gap: '28px' } },
+    h('div', { class: 'pagehd' }, h('div', { class: 'eyebrow' }, T.book), h('h1', { class: 'h1' }, T.name), h('p', { class: 'lead' }, T.intro),
+      h('div', { class: 'chips', style: { marginTop: '6px' } }, h('span', { class: 'chip p' }, `${T.units.length} 個單元`), h('span', { class: 'chip s' }, `${nActs} 個互動活動`), h('span', { class: 'chip' }, `${nQ} 題題庫`))),
+    h('section', { class: 'stack', style: { gap: '12px' } }, h('h2', { class: 'h3' }, '老師這樣用'),
+      h('ol', { class: 'steps', style: { padding: 0, margin: 0 } },
+        h('li', null, h('b', null, '選單元、看「教學流程」'), h('span', null, '每單元有學習目標、板書重點、分鐘數建議與常見迷思，照著上就行。')),
+        h('li', null, h('b', null, '投影「互動活動」'), h('span', null, '開「投影大字」放大字體。請學生上台操作，或讓學生用平板各自玩。')),
+        h('li', null, h('b', null, '下課前做「小測驗」'), h('span', null, '形成性評量一題一題作答、立即顯示解析，可全班一起舉手作答。')),
+        h('li', null, h('b', null, '章末做「總結性評量」'), h('span', null, '隨機抽題、自動計分，顯示各單元答對率與錯題解析。')),
+        h('li', null, h('b', null, '成績自動存到試算表'), h('span', null, '到「教師設定」接上自己的 Google 試算表，學生交卷後按一下就送出。')))),
+    h('section', { class: 'stack', style: { gap: '12px' } }, h('h2', { class: 'h3' }, '單元一覽'),
+      h('div', { class: 'grid3' }, T.units.map(u => h('a', { class: 'unitcard', href: `#${T.key}-${u.id}` }, h('span', { class: 'code' }, u.code + '　課本 ' + u.pages), h('h3', null, u.title),
+        h('div', { class: 'chips' }, u.acts.map(a => h('span', { class: 'chip' }, ACTS[a].t))), h('span', { class: 'meta' }, `${u.time}｜小測驗 ${u.quiz.length} 題`))),
+        h('a', { class: 'unitcard', href: `#${T.key}-exam`, style: { borderColor: 'var(--signal)' } }, h('span', { class: 'code', style: { color: 'var(--signal)' } }, '章末'), h('h3', null, '總結性評量'), h('span', { class: 'meta' }, `從 ${nQ} 題題庫隨機抽題，可選範圍與題數`)))),
+    h('div', { class: 'note' }, '小提醒：把網址列的連結貼給學生（例如某個單元的「互動活動」分頁），學生點開就會直接到那一頁。所有活動都在瀏覽器執行，不需要登入或安裝。'));
+}
+function unitView(T, u, tab, actId) {
+  const wrap = h('div');
+  const tabs = h('div', { class: 'tabs', role: 'tablist' });
+  const body = h('div');
+  const TABS = [['plan', '教學流程'], ['act', `互動活動（${u.acts.length}）`], ['quiz', `小測驗（${u.quiz.length}）`]];
+  const show = (k, a) => {
+    $$('button', tabs).forEach(b => b.setAttribute('aria-selected', b.dataset.k === k));
+    try { history.replaceState(null, '', `#${T.key}-${u.id}-${k}${k === 'act' && a ? '-' + a : ''}`); } catch (e) {}
+    body.innerHTML = '';
+    if (k === 'plan') body.append(planView(u));
+    else if (k === 'act') body.append(actView(T, u, a));
+    else { const p = h('div', { class: 'panel' }); quizFormative(p, u.quiz, u.code + ' ' + u.title, { v: T.short, unit: u.code + ' ' + u.title }); body.append(p); }
+  };
+  TABS.forEach(([k, t]) => tabs.append(h('button', { role: 'tab', 'data-k': k, onclick: () => show(k) }, t)));
+  wrap.append(h('div', { class: 'pagehd' }, h('div', { class: 'eyebrow' }, `${T.short}｜${u.code}｜課本 ${u.pages}｜${u.time}`), h('h1', { class: 'h1' }, u.title)), tabs, body);
+  show(tab, actId);
+  return wrap;
+}
+function planView(u) {
+  return h('div', { class: 'stack' },
+    h('div', { class: 'grid2' },
+      h('div', { class: 'panel' }, h('div', { class: 'h3' }, h('span', { class: 'tag' }, 'GOALS'), '學習目標'), h('ul', { class: 'pts' }, u.goals.map(g => h('li', null, g)))),
+      h('div', { class: 'panel' }, h('div', { class: 'h3' }, h('span', { class: 'tag' }, 'FLOW'), '建議教學流程'), h('div', { class: 'flow' }, u.flow.map(([m, t, d]) => h('div', { class: 'row' }, h('span', { class: 'min' }, m), h('div', null, h('b', null, t), h('span', null, d))))))),
+    h('div', { class: 'panel' }, h('div', { class: 'h3' }, h('span', { class: 'tag' }, 'KEY POINTS'), '板書重點'), h('ul', { class: 'pts' }, u.points.map(p => h('li', null, p)))),
+    h('div', { class: 'panel' }, h('div', { class: 'h3' }, h('span', { class: 'tag' }, 'MISCONCEPTIONS'), '學生常見迷思'), h('div', { style: { marginTop: '6px' } }, u.myths.map(([q, a]) => h('div', { class: 'myth' }, h('span', { class: 'q' }, '✕ ' + q), h('span', { class: 'a' }, a))))));
+}
+function actView(T, u, actId) {
+  const cur = u.acts.includes(actId) ? actId : u.acts[0];
+  const picker = h('div', { class: 'actpick' });
+  const stage = h('div', { class: 'panel' });
+  const sel = id => {
+    $$('button', picker).forEach(b => b.setAttribute('aria-pressed', b.dataset.id === id));
+    try { history.replaceState(null, '', `#${T.key}-${u.id}-act-${id}`); } catch (e) {}
+    const A = ACTS[id];
+    stage.innerHTML = '';
+    const area = h('div');
+    stage.append(h('div', { class: 'acthd' }, h('span', { class: 'eyebrow' }, A.k), h('h3', null, A.t), h('p', null, A.d)), area, A.ask ? h('div', { class: 'ask' }, h('b', null, '課堂提問'), h('span', null, A.ask)) : null);
+    A.r(area, T, u);
+  };
+  if (u.acts.length > 1) u.acts.forEach(id => picker.append(h('button', { 'data-id': id, onclick: () => sel(id) }, h('span', { class: 'k' }, ACTS[id].k), ACTS[id].t)));
+  const w = h('div', null, u.acts.length > 1 ? picker : null, stage);
+  sel(cur);
+  return w;
+}
+function render() {
+  const r = parseHash();
+  TRK = r.t; store.set('nk-track', TRK);
+  const T = TRACKS[TRK];
+  const u = T.units.find(x => x.id === r.v);
+  app.innerHTML = '';
+  const main = h('main', { id: 'main' });
+  if (r.v === 'exam') main.append(h('div', { class: 'pagehd' }, h('div', { class: 'eyebrow' }, `${T.short}｜${T.name}`), h('h1', { class: 'h1' }, '總結性評量'), h('p', { class: 'lead' }, '從各單元題庫隨機抽題，學生交卷後立即看到分數、各單元答對率與錯題解析。')), (() => { const d = h('div'); examView(d, T); return d; })());
+  else if (r.v === 'guide') main.append(settingsView(T));
+  else if (u) main.append(unitView(T, u, r.tab, r.act));
+  else main.append(homeView(T));
+  main.append(h('p', { class: 'foot' }, `內容依據 ${T.book} 與教師備課用書整理。活動中的 IP 位址為教學示意。`));
+  app.append(topbar(TRK), h('div', { class: 'shell' }, rail(T, u ? u.id : r.v), main));
+}
+if (store.get('nk-proj', '')) document.documentElement.classList.add('proj');
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+render();
+</script>
+
+</body></html>
